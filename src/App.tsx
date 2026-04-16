@@ -90,7 +90,7 @@ export default function App() {
           }
           
           const response = await aiClient.models.generateContent({
-            model: 'gemini-3-flash-preview',
+            model: 'gemini-2.5-flash',
             contents: `Provide a short, engaging geographical summary of ${localName} in Bengali. Mention its capital, key geographical features, and a famous landmark. Keep it under 3-4 sentences.`,
             config: {
               tools: [{ googleMaps: {} }],
