@@ -81,7 +81,7 @@ export default function App() {
           flagUrl: country.flags.svg || country.flags.png
         });
 
-        // Fetch summary from Gemini with Maps Grounding
+        // Fetch summary from Gemini
         try {
           const aiClient = getAiClient();
           if (!aiClient) {
@@ -90,16 +90,13 @@ export default function App() {
           }
           
           const response = await aiClient.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3-flash-preview',
             contents: `Provide a short, engaging geographical summary of ${localName} in Bengali. Mention its capital, key geographical features, and a famous landmark. Keep it under 3-4 sentences.`,
-            config: {
-              tools: [{ googleMaps: {} }],
-            }
           });
           setCountrySummary(response.text);
-        } catch (geminiError) {
+        } catch (geminiError: any) {
           console.error("Failed to fetch summary from Gemini", geminiError);
-          setCountrySummary("তথ্য লোড করতে সমস্যা হয়েছে।");
+          setCountrySummary(`তথ্য লোড করতে সমস্যা হয়েছে: ${geminiError?.message || 'Unknown error'}`);
         }
       }
     } catch (error) {
