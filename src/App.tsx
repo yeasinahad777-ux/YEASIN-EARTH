@@ -5,7 +5,17 @@ import GlobeViz from './GlobeViz';
 import QuizSection from './QuizSection';
 import { GoogleGenAI } from '@google/genai';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Initialize Gemini API only when needed to prevent crashes if key is missing
+let ai: GoogleGenAI | null = null;
+const getAiClient = () => {
+  if (!ai) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      ai = new GoogleGenAI({ apiKey });
+    }
+  }
+  return ai;
+};
 
 interface CountryDetails {
   name: string;
@@ -73,7 +83,13 @@ export default function App() {
 
         // Fetch summary from Gemini with Maps Grounding
         try {
-          const response = await ai.models.generateContent({
+          const aiClient = getAiClient();
+          if (!aiClient) {
+            setCountrySummary("AI সারাংশ দেখার জন্য API Key সেট করা নেই।");
+            return;
+          }
+          
+          const response = await aiClient.models.generateContent({
             model: 'gemini-3-flash-preview',
             contents: `Provide a short, engaging geographical summary of ${localName} in Bengali. Mention its capital, key geographical features, and a famous landmark. Keep it under 3-4 sentences.`,
             config: {
