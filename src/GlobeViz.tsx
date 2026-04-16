@@ -9,8 +9,17 @@ interface GlobeVizProps {
 export default function GlobeViz({ focusCountryCode }: GlobeVizProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const globeInstance = useRef<any>(null);
-  const countriesDataRef = useRef<Record<string, { lat: number, lng: number }>>({});
+  const geoDataRef = useRef<any[]>([]);
   const [isLoadingGeo, setIsLoadingGeo] = useState(true);
+
+  // ISO ঠিক করার ফাংশন
+  const getCorrectISO = (d: any) => {
+    if (!d || !d.properties) return '';
+    let iso = d.properties.ISO_A2 ? d.properties.ISO_A2.toLowerCase() : '';
+    if(iso === '-99' && d.properties.ISO_A3 === 'FRA') iso = 'fr';
+    if(iso === '-99' && d.properties.ISO_A3 === 'NOR') iso = 'no';
+    return iso;
+  };
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -22,7 +31,7 @@ export default function GlobeViz({ focusCountryCode }: GlobeVizProps) {
       .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png');
 
     globe.controls().autoRotate = true;
-    globe.controls().autoRotateSpeed = 0.5; // Reduced speed for slower rotation
+    globe.controls().autoRotateSpeed = 0.5;
     globe.controls().enableZoom = true;
 
     globeInstance.current = globe;
@@ -32,22 +41,20 @@ export default function GlobeViz({ focusCountryCode }: GlobeVizProps) {
       .then(res => res.json())
       .then(countriesGeoData => {
         setIsLoadingGeo(false);
+        const geoData = countriesGeoData.features;
+        geoDataRef.current = geoData;
         
-        globe.polygonsData(countriesGeoData.features)
+        // ম্যাপের বর্ডার এবং কালার
+        globe.polygonsData(geoData)
              .polygonAltitude(0.01)
-             .polygonCapColor(() => 'rgba(0, 107, 94, 0.2)') // Transparent green fill
+             .polygonCapColor(() => 'rgba(0, 107, 94, 0.2)')
              .polygonSideColor(() => 'rgba(0, 100, 0, 0.1)')
-             .polygonStrokeColor(() => '#ffffff') // White borders
+             .polygonStrokeColor(() => '#ffffff')
              
-             // Show Tooltip with Bengali Name & Flag
+             // পপ-আপ ইনফরমেশন
              .polygonLabel(({ properties: d }: any) => {
-                 // Find ISO Code
-                 let iso = d.ISO_A2 ? d.ISO_A2.toLowerCase() : '';
-                 if(iso === '-99' && d.ISO_A3 === 'FRA') iso = 'fr'; // Fix for France
-                 if(iso === '-99' && d.ISO_A3 === 'NOR') iso = 'no'; // Fix for Norway
-                 
+                 let iso = getCorrectISO({ properties: d });
                  let bdData = countries.find(c => c.code === iso);
-                 
                  if(bdData) {
                      return `
                         <div style="background: rgba(0,0,0,0.85); padding: 10px; border-radius: 8px; color: white; font-family: 'Hind Siliguri', sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border: 1px solid #444;">
@@ -60,73 +67,64 @@ export default function GlobeViz({ focusCountryCode }: GlobeVizProps) {
                         </div>
                      `;
                  }
-                 // Fallback for missing mapping
                  return `<div style="background: rgba(0,0,0,0.8); padding: 8px; border-radius: 5px; color: white;"><b>${d.ADMIN}</b></div>`;
              })
-             
-             // Hover Effect (Make country Pop-up)
+             // Hover Effect
              .onPolygonHover((hoverD: any) => {
-                 globe.polygonAltitude((d: any) => d === hoverD ? 0.08 : 0.01)
-                      .polygonCapColor((d: any) => d === hoverD ? 'rgba(255, 152, 0, 0.7)' : 'rgba(0, 107, 94, 0.2)');
+                 globe.polygonAltitude((d: any) => {
+                    const isFocused = focusCountryCode && getCorrectISO(d) === focusCountryCode.toLowerCase();
+                    return d === hoverD ? 0.08 : (isFocused ? 0.08 : 0.01);
+                 })
+                 .polygonCapColor((d: any) => {
+                    const isFocused = focusCountryCode && getCorrectISO(d) === focusCountryCode.toLowerCase();
+                    return d === hoverD ? 'rgba(255, 152, 0, 0.7)' : (isFocused ? 'rgba(255, 152, 0, 0.8)' : 'rgba(0, 107, 94, 0.2)');
+                 });
              });
-      })
-      .catch(err => console.error("Error fetching GeoJSON data:", err));
 
-    // Fetch country coordinates and names to display on the globe
-    fetch('https://restcountries.com/v3.1/all')
-      .then(res => res.json())
-      .then(countries => {
-        const labelsData = countries
-          .filter((c: any) => c.latlng && c.latlng.length === 2)
-          .map((c: any) => {
-            const lat = c.latlng[0];
-            const lng = c.latlng[1];
-            const code = (c.cca2 || '').toLowerCase();
-            
-            if (code) {
-              countriesDataRef.current[code] = { lat, lng };
+        // গ্লোবের ওপর সব সময় দেশের নাম ভাসিয়ে রাখা (Labels)
+        const labelData: any[] = [];
+        geoData.forEach((d: any) => {
+            let iso = getCorrectISO(d);
+            let bdData = countries.find(c => c.code === iso);
+            if(bdData && d.properties.LABEL_Y && d.properties.LABEL_X) {
+                labelData.push({ 
+                  lat: d.properties.LABEL_Y, 
+                  lng: d.properties.LABEL_X, 
+                  name: bdData.country,
+                  pop: d.properties.POP_EST || 0
+                });
             }
+        });
 
-            return {
-              lat,
-              lng,
-              name: c.translations?.ben?.common || c.name.common,
-              pop: c.population
-            };
-          });
-
-        globe
-          .labelsData(labelsData)
-          .labelLat('lat')
-          .labelLng('lng')
-          .labelText('name')
-          .labelSize((d: any) => d.pop > 50000000 ? 1.8 : d.pop > 10000000 ? 1.2 : 0.8)
-          .labelDotRadius(0) // Remove the dot to look like Google Earth
-          .labelColor(() => 'rgba(255, 255, 255, 1)') // Solid white text
-          .labelResolution(4) // High resolution for crisp text
-          .labelAltitude(0.01);
+        globe.labelsData(labelData)
+             .labelLat('lat').labelLng('lng').labelText('name')
+             .labelSize((d: any) => d.pop > 50000000 ? 1.8 : d.pop > 10000000 ? 1.2 : 0.8)
+             .labelDotRadius(0)
+             .labelColor(() => 'rgba(255, 255, 255, 1)')
+             .labelResolution(4)
+             .labelAltitude(0.01);
 
         // If a country is already selected when data loads, focus it
-        if (focusCountryCode && countriesDataRef.current[focusCountryCode.toLowerCase()]) {
-          const { lat, lng } = countriesDataRef.current[focusCountryCode.toLowerCase()];
-          globe.pointOfView({ lat, lng, altitude: 1.2 }, 1000);
+        if (focusCountryCode) {
+          const targetGeo = geoData.find((d: any) => getCorrectISO(d) === focusCountryCode.toLowerCase());
+          if (targetGeo && targetGeo.properties.LABEL_Y && targetGeo.properties.LABEL_X) {
+            globe.pointOfView({ lat: targetGeo.properties.LABEL_Y, lng: targetGeo.properties.LABEL_X, altitude: 0.8 }, 1000);
+          }
         }
       })
-      .catch(err => console.error("Error fetching country data for globe:", err));
+      .catch(err => console.error("Error fetching GeoJSON data:", err));
 
     const handleResize = () => {
       if (containerRef.current && globeInstance.current) {
         const width = containerRef.current.clientWidth;
-        const height = Math.min(width * 0.6, 500); // Cap height
+        const height = Math.min(width * 0.6, 500);
         globeInstance.current.width(width);
         globeInstance.current.height(height);
       }
     };
 
-    // Initial size
     handleResize();
 
-    // Resize observer for container to handle responsive layouts
     const resizeObserver = new ResizeObserver(() => {
       handleResize();
     });
@@ -142,20 +140,35 @@ export default function GlobeViz({ focusCountryCode }: GlobeVizProps) {
 
   // Handle focus country changes
   useEffect(() => {
-    if (focusCountryCode && globeInstance.current && countriesDataRef.current) {
-      const code = focusCountryCode.toLowerCase();
-      const coords = countriesDataRef.current[code];
-      if (coords) {
-        // Stop auto-rotation temporarily when focusing
-        globeInstance.current.controls().autoRotate = false;
-        globeInstance.current.pointOfView({ lat: coords.lat, lng: coords.lng, altitude: 1.2 }, 1000);
+    if (globeInstance.current && geoDataRef.current.length > 0) {
+      // Trigger an update immediately for the current focus colors
+      globeInstance.current
+        .polygonAltitude((d: any) => {
+          const isFocused = focusCountryCode && getCorrectISO(d) === focusCountryCode.toLowerCase();
+          return isFocused ? 0.08 : 0.01;
+        })
+        .polygonCapColor((d: any) => {
+          const isFocused = focusCountryCode && getCorrectISO(d) === focusCountryCode.toLowerCase();
+          return isFocused ? 'rgba(255, 152, 0, 0.8)' : 'rgba(0, 107, 94, 0.2)';
+        });
+
+      if (focusCountryCode) {
+        const targetGeo = geoDataRef.current.find((d: any) => getCorrectISO(d) === focusCountryCode.toLowerCase());
         
-        // Resume auto-rotation after a delay
-        setTimeout(() => {
-           if (globeInstance.current) {
-             globeInstance.current.controls().autoRotate = true;
-           }
-        }, 5000);
+        if (targetGeo && targetGeo.properties.LABEL_Y && targetGeo.properties.LABEL_X) {
+          // Stop auto-rotation temporarily when focusing
+          globeInstance.current.controls().autoRotate = false;
+          
+          // ওই দেশে উড়ে যাওয়া (Fly)
+          globeInstance.current.pointOfView({ 
+            lat: targetGeo.properties.LABEL_Y, 
+            lng: targetGeo.properties.LABEL_X, 
+            altitude: 0.8 
+          }, 1500);
+          
+        }
+      } else {
+        globeInstance.current.controls().autoRotate = true;
       }
     }
   }, [focusCountryCode]);
