@@ -114,7 +114,12 @@ export default function App() {
           setCountrySummary(response.text);
         } catch (geminiError: any) {
           console.error("Failed to fetch summary from Gemini", geminiError);
-          setCountrySummary(`তথ্য লোড করতে সমস্যা হয়েছে: ${geminiError?.message || 'Unknown error'}`);
+          const errorMsg = geminiError?.message || '';
+          if (errorMsg.includes('429') || errorMsg.includes('quota') || errorMsg.includes('RESOURCE_EXHAUSTED')) {
+            setCountrySummary("দুঃখিত, বর্তমানে AI এর ফ্রি লিমিট (কোটা) শেষ হয়ে গেছে। দয়া করে কিছুক্ষণ পর বা আগামীকাল আবার চেষ্টা করুন।");
+          } else {
+            setCountrySummary("AI তথ্য লোড করতে সমস্যা হয়েছে। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।");
+          }
         }
       }
     } catch (error) {
