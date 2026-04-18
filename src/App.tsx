@@ -100,25 +100,54 @@ export default function App() {
         try {
           const aiClient = getAiClient();
           if (!aiClient) {
-            setCountrySummary("AI সারাংশ দেখার জন্য API Key সেট করা নেই।");
+            setCountrySummary("AI সারাংশ দেখার জন্য API Key সেট করা নেই। দয়া করে ড্যাশবোর্ড থেকে API Key সেট করুন।");
             return;
           }
           
-          const response = await aiClient.models.generateContent({
-            model: 'gemini-3-flash-preview',
-            contents: `Provide a short, engaging geographical summary of ${localName} in Bengali. Mention its capital, key geographical features, and a famous landmark. Keep it under 3-4 sentences.`,
-            config: {
-              tools: [{ googleSearch: {} }],
+          let response;
+          try {
+            // First attempt: With Google Search Grounding for best data
+            response = await aiClient.models.generateContent({
+              model: 'gemini-3-flash-preview',
+              contents: `Provide a short, engaging geographical summary of ${localName} in Bengali. Mention its capital, key geographical features, and a famous landmark. Keep it under 3-4 sentences.`,
+              config: {
+                tools: [{ googleSearch: {} }],
+              }
+            });
+          } catch (initialError: any) {
+            console.warn("First attempt with search failed, trying fallback...", initialError);
+            const initialErrorMsg = JSON.stringify(initialError).toLowerCase();
+            
+            // If it's a quota/rate limit error, try a simpler request without search grounding
+            // as grounding often has more restrictive limits.
+            if (initialErrorMsg.includes('429') || initialErrorMsg.includes('quota') || initialErrorMsg.includes('resource_exhausted')) {
+              response = await aiClient.models.generateContent({
+                model: 'gemini-3-flash-preview',
+                contents: `Provide a short, engaging geographical summary of ${localName} in Bengali. Mention its capital, key geographical features, and a famous landmark. Keep it under 3-10 sentences.`,
+              });
+            } else {
+              throw initialError;
             }
-          });
-          setCountrySummary(response.text);
-        } catch (geminiError: any) {
-          console.error("Failed to fetch summary from Gemini", geminiError);
-          const errorMsg = geminiError?.message || '';
-          if (errorMsg.includes('429') || errorMsg.includes('quota') || errorMsg.includes('RESOURCE_EXHAUSTED')) {
-            setCountrySummary("দুঃখিত, বর্তমানে AI এর ফ্রি লিমিট (কোটা) শেষ হয়ে গেছে। দয়া করে কিছুক্ষণ পর বা আগামীকাল আবার চেষ্টা করুন।");
+          }
+          
+          if (response && response.text) {
+            setCountrySummary(response.text);
           } else {
-            setCountrySummary("AI তথ্য লোড করতে সমস্যা হয়েছে। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।");
+            throw new Error("No response text received");
+          }
+          
+        } catch (geminiError: any) {
+          console.error("Critical Gemini Error:", geminiError);
+          const errorMsgStr = JSON.stringify(geminiError).toLowerCase();
+          const simpleMsg = geminiError?.message?.toLowerCase() || '';
+          
+          if (errorMsgStr.includes('429') || errorMsgStr.includes('quota') || 
+              errorMsgStr.includes('resource_exhausted') || simpleMsg.includes('limit')) {
+            setCountrySummary("দুঃখিত, বর্তমানে এআই (AI) এর ব্যবহারের লিমিট শেষ হয়ে গেছে। দয়া করে কিছুক্ষণ পর বা আগামীকাল আবার চেষ্টা করুন।");
+          } else if (errorMsgStr.includes('api_key_invalid') || errorMsgStr.includes('invalid api key')) {
+            setCountrySummary("আপনার দেওয়া API Key টি সঠিক নয়। দয়া করে সঠিক API Key ব্যবহার করুন।");
+          } else {
+            setCountrySummary("দুঃখিত, এই মুহূর্তে তথ্য লোড করা সম্ভব হচ্ছে না। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।");
           }
         }
       }
@@ -164,20 +193,48 @@ export default function App() {
       
       {/* Welcome Modal */}
       {showWelcome && (
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl p-8 max-w-md w-full text-center animate-in zoom-in duration-300">
-            <div className="w-20 h-20 mx-auto mb-6 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full flex items-center justify-center">
-              <span className="text-4xl">🌍</span>
+        <div className="fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl p-6 md:p-8 max-w-xl w-full transform transition-all animate-in zoom-in-95 duration-300 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/10 rounded-bl-full -z-10 blur-2xl"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-[var(--primary)]/10 rounded-tr-full -z-10 blur-2xl"></div>
+            
+            <div className="w-16 h-16 mx-auto mb-5 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full flex items-center justify-center">
+              <span className="text-3xl">🌍</span>
             </div>
-            <h2 className="text-3xl font-bold text-[var(--text-main)] mb-4">Welcome to YEASIN EARTH</h2>
-            <p className="text-[var(--text-muted)] mb-8">
-              Explore the 196 countries of the world, learn exciting geographical facts, and test your knowledge with our global quiz!
-            </p>
+            
+            <h2 className="text-2xl md:text-3xl font-extrabold text-[var(--primary)] mb-3 text-center tracking-tight">3D এক্সপ্লোরার</h2>
+            
+            <div className="text-[var(--text-main)] mb-6 text-sm md:text-base leading-relaxed text-center font-medium">
+              আমাদের এই সুন্দর পৃথিবী সম্পর্কে জানা অত্যন্ত জরুরি। পৃথিবী আমাদের একমাত্র বাসস্থান, আর এর বৈচিত্র্যময় দেশ, সংস্কৃতি ও ভূগোল সম্পর্কে জানা আমাদের চারপাশের বিশ্ব সম্পর্কে ধারণাকে আরও প্রসারিত করে।
+            </div>
+
+            <div className="bg-[var(--bg)] rounded-xl p-4 md:p-5 mb-8 border border-[var(--border)]">
+              <h3 className="font-bold text-[var(--text-main)] mb-3 text-sm md:text-base">এই ইন্টারফেসে আপনি যা যা পাবেন:</h3>
+              <ul className="space-y-3 text-sm text-[var(--text-muted)] text-left">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[var(--primary)] font-bold mt-0.5 text-lg leading-none">✓</span>
+                  <span>বিশ্বের <strong>১৯৬টি দেশের</strong> পরিষ্কার ও ইন্টারেক্টিভ থ্রিডি (3D) অবস্থান।</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[var(--primary)] font-bold mt-0.5 text-lg leading-none">✓</span>
+                  <span>প্রতিটি দেশের রাজধানী, জনসংখ্যা, ভাষা ও প্রতিবেশী দেশসমূহের বিবরণ।</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[var(--primary)] font-bold mt-0.5 text-lg leading-none">✓</span>
+                  <span>এআই (AI) প্রযুক্তির মাধ্যমে তৈরি করা দেশের আকর্ষণীয় ভৌগোলিক তথ্য।</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[var(--primary)] font-bold mt-0.5 text-lg leading-none">✓</span>
+                  <span>জ্ঞান যাচাই করার জন্য বিশেষ <strong>MCQ কুইজ টেস্ট</strong>।</span>
+                </li>
+              </ul>
+            </div>
+
             <button 
               onClick={() => setShowWelcome(false)}
-              className="bg-[var(--primary)] text-white font-bold py-3 px-8 rounded-full hover:opacity-90 transition-opacity w-full shadow-lg"
+              className="bg-[var(--primary)] text-white font-bold py-3.5 px-8 rounded-full hover:opacity-90 hover:scale-[1.02] active:scale-95 transition-all w-full shadow-lg text-lg flex items-center justify-center gap-2"
             >
-              Let's Explore
+              চলুন শুরু করি 🚀
             </button>
           </div>
         </div>
