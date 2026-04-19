@@ -314,7 +314,7 @@ export default function CurrencyConverter({ onClose }: CurrencyConverterProps) {
                 
                 {/* FROM BOX */}
                 <div className="w-full flex-1 bg-[var(--bg)] rounded-2xl border-2 border-[var(--border)] hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all p-4">
-                  <label className="block text-xs font-bold text-[var(--text-muted)] mb-3 uppercase tracking-wider">হতে (From)</label>
+                  <label className="block text-xs font-bold text-[var(--text-muted)] mb-3 uppercase">হতে (From)</label>
                   <div className="flex items-center justify-between gap-4">
                     <input 
                       type="number"
@@ -343,7 +343,7 @@ export default function CurrencyConverter({ onClose }: CurrencyConverterProps) {
 
                 {/* TO BOX */}
                 <div className="w-full flex-1 bg-[var(--bg)] rounded-2xl border-2 border-[var(--border)] hover:border-blue-400 transition-all p-4">
-                  <label className="block text-xs font-bold text-[var(--text-muted)] mb-3 uppercase tracking-wider">তে (To)</label>
+                  <label className="block text-xs font-bold text-[var(--text-muted)] mb-3 uppercase">তে (To)</label>
                   <div className="flex items-center justify-between gap-4">
                     <div className="w-1/2 min-w-[80px] text-3xl sm:text-4xl font-black text-[var(--text-main)] truncate overflow-hidden" title={calculateConvertedAmount()}>
                       {calculateConvertedAmount()}

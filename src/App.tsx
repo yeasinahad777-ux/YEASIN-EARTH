@@ -336,7 +336,7 @@ export default function App() {
         <main className="flex-1 p-6 md:p-10 grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8 md:gap-10 max-w-[1400px] mx-auto w-full">
           <aside className="flex flex-col gap-6">
           <div>
-            <h3 className="text-[11px] uppercase text-[var(--text-muted)] mb-4 tracking-widest font-semibold">মহাদেশসমূহ</h3>
+            <h3 className="text-[11px] uppercase text-[var(--text-muted)] mb-4 font-semibold">মহাদেশসমূহ</h3>
             <ul className="flex flex-col">
               {filterOptions.map(option => {
                 const isActive = selectedContinent === option;
@@ -423,7 +423,7 @@ export default function App() {
           </div>
 
           <div className="flex flex-col gap-4 mb-2">
-            <h2 className="text-center text-[var(--primary)] text-xl font-bold tracking-tight">ঘুরিয়ে দেখুন আমাদের পৃথিবী</h2>
+            <h2 className="text-center text-[var(--primary)] text-xl font-bold">ঘুরিয়ে দেখুন আমাদের পৃথিবী</h2>
             <GlobeViz focusCountryCode={globeFocusCode} />
           </div>
 
@@ -443,10 +443,10 @@ export default function App() {
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr>
-                    <th className="bg-[var(--bg)] p-4 text-xs uppercase tracking-wider text-[var(--text-muted)] border-b border-[var(--border)] font-semibold whitespace-nowrap">মহাদেশ</th>
-                    <th className="bg-[var(--bg)] p-4 text-xs uppercase tracking-wider text-[var(--text-muted)] border-b border-[var(--border)] font-semibold whitespace-nowrap">পতাকা ও দেশ</th>
-                    <th className="bg-[var(--bg)] p-4 text-xs uppercase tracking-wider text-[var(--text-muted)] border-b border-[var(--border)] font-semibold whitespace-nowrap">রাজধানী</th>
-                    <th className="bg-[var(--bg)] p-4 text-xs uppercase tracking-wider text-[var(--text-muted)] border-b border-[var(--border)] font-semibold whitespace-nowrap">প্রতিবেশী দেশ</th>
+                    <th className="bg-[var(--bg)] p-4 text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold whitespace-nowrap">মহাদেশ</th>
+                    <th className="bg-[var(--bg)] p-4 text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold whitespace-nowrap">পতাকা ও দেশ</th>
+                    <th className="bg-[var(--bg)] p-4 text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold whitespace-nowrap">রাজধানী</th>
+                    <th className="bg-[var(--bg)] p-4 text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold whitespace-nowrap">প্রতিবেশী দেশ</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -591,7 +591,7 @@ export default function App() {
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] col-span-2">
-                      <span className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] mb-2 uppercase tracking-wider font-semibold">
+                      <span className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] mb-2 uppercase font-semibold">
                         <MapPin size={14} className="text-[var(--primary)]" />
                         ভৌগোলিক তথ্য (Google Maps)
                       </span>
@@ -607,19 +607,19 @@ export default function App() {
                       )}
                     </div>
                     <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)]">
-                      <span className="block text-xs text-[var(--text-muted)] mb-1 uppercase tracking-wider font-semibold">জনসংখ্যা</span>
+                      <span className="block text-xs text-[var(--text-muted)] mb-1 uppercase font-semibold">জনসংখ্যা</span>
                       <strong className="text-[var(--text-main)] text-lg">{countryDetails.population.toLocaleString()}</strong>
                     </div>
                     <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)]">
-                      <span className="block text-xs text-[var(--text-muted)] mb-1 uppercase tracking-wider font-semibold">মুদ্রা (Currency)</span>
+                      <span className="block text-xs text-[var(--text-muted)] mb-1 uppercase font-semibold">মুদ্রা (Currency)</span>
                       <strong className="text-[var(--text-main)] text-sm">{countryDetails.currencies}</strong>
                     </div>
                     <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] col-span-2">
-                      <span className="block text-xs text-[var(--text-muted)] mb-1 uppercase tracking-wider font-semibold">সরকারি ভাষা</span>
+                      <span className="block text-xs text-[var(--text-muted)] mb-1 uppercase font-semibold">সরকারি ভাষা</span>
                       <strong className="text-[var(--text-main)] text-sm">{countryDetails.languages}</strong>
                     </div>
                     <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] col-span-2">
-                      <span className="block text-xs text-[var(--text-muted)] mb-1 uppercase tracking-wider font-semibold">অঞ্চল (Region)</span>
+                      <span className="block text-xs text-[var(--text-muted)] mb-1 uppercase font-semibold">অঞ্চল (Region)</span>
                       <strong className="text-[var(--text-main)] text-sm">{countryDetails.region} {countryDetails.subregion ? `(${countryDetails.subregion})` : ''}</strong>
                     </div>
                   </div>
