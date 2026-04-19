@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { countries, continents } from './data';
-import { Moon, Sun, Search, X, Loader2, MapPin, PenTool } from 'lucide-react';
+import { Moon, Sun, Search, X, Loader2, MapPin, PenTool, Globe, Box, Brain, Infinity as InfinityIcon, Mouse, PlayCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import GlobeViz from './GlobeViz';
 import QuizSection from './QuizSection';
+import Chatbot from './Chatbot';
 import { GoogleGenAI } from '@google/genai';
 
 // Initialize Gemini API only when needed to prevent crashes if key is missing
@@ -40,15 +42,7 @@ export default function App() {
   const [countrySummary, setCountrySummary] = useState<string | null>(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [isExamMode, setIsExamMode] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(false);
-
-  useEffect(() => {
-    const hasVisited = localStorage.getItem('hasVisitedYEASINEARTH');
-    if (!hasVisited) {
-      setShowWelcome(true);
-      localStorage.setItem('hasVisitedYEASINEARTH', 'true');
-    }
-  }, []);
+  const [showWelcome, setShowWelcome] = useState(true);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -109,9 +103,10 @@ export default function App() {
             // First attempt: With Google Search Grounding for best data
             response = await aiClient.models.generateContent({
               model: 'gemini-3-flash-preview',
-              contents: `Provide a short, engaging geographical summary of ${localName} in Bengali. Mention its capital, key geographical features, and a famous landmark. Keep it under 3-4 sentences.`,
+              contents: `Provide a short, engaging geographical summary of ${localName} in Bengali. Mention its capital, key geographical features, and an exact famous landmark or pinned location if possible. Keep it under 3-4 sentences.`,
               config: {
-                tools: [{ googleSearch: {} }],
+                // Grounding via Search & Maps to get accurate and up to date geographical references
+                tools: [{ googleSearch: {} }, { googleMaps: {} }],
               }
             });
           } catch (initialError: any) {
@@ -191,54 +186,113 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text-main)] font-sans transition-colors duration-300">
       
+      {/* Floating Chatbot */}
+      <Chatbot />
+      
       {/* Welcome Modal */}
-      {showWelcome && (
-        <div className="fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl p-6 md:p-8 max-w-xl w-full transform transition-all animate-in zoom-in-95 duration-300 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/10 rounded-bl-full -z-10 blur-2xl"></div>
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-[var(--primary)]/10 rounded-tr-full -z-10 blur-2xl"></div>
-            
-            <div className="w-16 h-16 mx-auto mb-5 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full flex items-center justify-center">
-              <span className="text-3xl">🌍</span>
-            </div>
-            
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[var(--primary)] mb-3 text-center tracking-tight">3D এক্সপ্লোরার</h2>
-            
-            <div className="text-[var(--text-main)] mb-6 text-sm md:text-base leading-relaxed text-center font-medium">
-              আমাদের এই সুন্দর পৃথিবী সম্পর্কে জানা অত্যন্ত জরুরি। পৃথিবী আমাদের একমাত্র বাসস্থান, আর এর বৈচিত্র্যময় দেশ, সংস্কৃতি ও ভূগোল সম্পর্কে জানা আমাদের চারপাশের বিশ্ব সম্পর্কে ধারণাকে আরও প্রসারিত করে।
-            </div>
+      <AnimatePresence>
+        {showWelcome && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 0.95, filter: 'blur(10px)' }}
+            transition={{ duration: 0.8 }}
+            className="welcome-wrapper"
+          >
+            <div className="space-background"></div>
 
-            <div className="bg-[var(--bg)] rounded-xl p-4 md:p-5 mb-8 border border-[var(--border)]">
-              <h3 className="font-bold text-[var(--text-main)] mb-3 text-sm md:text-base">এই ইন্টারফেসে আপনি যা যা পাবেন:</h3>
-              <ul className="space-y-3 text-sm text-[var(--text-muted)] text-left">
-                <li className="flex items-start gap-2.5">
-                  <span className="text-[var(--primary)] font-bold mt-0.5 text-lg leading-none">✓</span>
-                  <span>বিশ্বের <strong>১৯৬টি দেশের</strong> পরিষ্কার ও ইন্টারেক্টিভ থ্রিডি (3D) অবস্থান।</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="text-[var(--primary)] font-bold mt-0.5 text-lg leading-none">✓</span>
-                  <span>প্রতিটি দেশের রাজধানী, জনসংখ্যা, ভাষা ও প্রতিবেশী দেশসমূহের বিবরণ।</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="text-[var(--primary)] font-bold mt-0.5 text-lg leading-none">✓</span>
-                  <span>এআই (AI) প্রযুক্তির মাধ্যমে তৈরি করা দেশের আকর্ষণীয় ভৌগোলিক তথ্য।</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="text-[var(--primary)] font-bold mt-0.5 text-lg leading-none">✓</span>
-                  <span>জ্ঞান যাচাই করার জন্য বিশেষ <strong>MCQ কুইজ টেস্ট</strong>।</span>
-                </li>
-              </ul>
-            </div>
+            <div className="welcome-inner">
+              {/* Real Astronaut Rising */}
+              <img src="https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTEyL3Jhd3BpeGVsX29mZmljZV8yNF9yZWFsaXN0aWNfaW1hZ2Vfb2ZfYW5fYXN0cm9uYXV0X2Zsb2F0aW5nX2luX180NWMyMDcxNi0wMjg0LTQwZDEtYTFjMi1kODZhNzZhZDAzNWRfMS5wbmc.png" 
+                   className="absolute right-[5%] md:right-[15%] w-[120px] md:w-[220px] animate-rise-up drop-shadow-[0_0_20px_rgba(255,255,255,0.2)] z-0 pointer-events-none" 
+                   alt="Astronaut" />
 
-            <button 
-              onClick={() => setShowWelcome(false)}
-              className="bg-[var(--primary)] text-white font-bold py-3.5 px-8 rounded-full hover:opacity-90 hover:scale-[1.02] active:scale-95 transition-all w-full shadow-lg text-lg flex items-center justify-center gap-2"
-            >
-              চলুন শুরু করি 🚀
-            </button>
-          </div>
-        </div>
-      )}
+              {/* Navigation */}
+              <nav className="w-navbar fade-down-anim relative z-10 w-full mt-4">
+                <div className="w-logo">
+                  🌍 <span className="tracking-widest">YEASIN EARTH</span>
+                </div>
+                
+                <ul className="w-nav-links hidden md:flex">
+                  <li><a href="#" onClick={(e) => e.preventDefault()}>হোম</a></li>
+                  <li><a href="#" onClick={(e) => e.preventDefault()}>3D এক্সপ্লোরার</a></li>
+                  <li><a href="#" onClick={(e) => e.preventDefault()}>দেশসমূহ</a></li>
+                  <li><a href="#" onClick={(e) => e.preventDefault()}>AI শেখা</a></li>
+                  <li><a href="#" onClick={(e) => e.preventDefault()}>কুইজ</a></li>
+                  <li><a href="#" onClick={(e) => e.preventDefault()}>আমাদের সম্পর্কে</a></li>
+                </ul>
+
+                <div className="w-nav-actions">
+                  <span className="hidden md:block"><Search size={18} /></span>
+                  <span className="hidden md:block"><Globe size={18} /></span>
+                  <span className="hidden md:block"><Moon size={18} /></span>
+                  <button onClick={() => setShowWelcome(false)} className="btn-nav">শুরু করুন ➔</button>
+                </div>
+              </nav>
+
+              {/* Hero Section */}
+              <div className="hero-section w-full">
+                <div className="hero-content">
+                  <h1 className="main-title slide-up-1">
+                    পৃথিবীকে জানো,<br/>
+                    <span className="gradient-text animated-gradient">নিজেকে আবিষ্কার করো</span>
+                  </h1>
+                  
+                  <p className="subtitle slide-up-2">অজানা পৃথিবী তোমার অপেক্ষায়...</p>
+                  
+                  <div className="quote-left slide-up-3 float-anim">
+                    <span className="quote-mark">“</span>
+                    যে পৃথিবীকে দেখে না,<br/>সে শুধু এক পাতাই পড়ে।
+                    <span className="quote-mark right">”</span>
+                  </div>
+                  
+                  <div className="hero-buttons slide-up-4">
+                    <button onClick={() => setShowWelcome(false)} className="btn-primary-custom glow-btn">
+                      🚀 এক্সপ্লোর শুরু করুন
+                    </button>
+                    <button className="btn-secondary">
+                      <span className="play-btn-icon"><PlayCircle size={20} /></span>
+                      কিভাবে কাজ করে?
+                    </button>
+                  </div>
+                </div>
+
+                {/* Floating Quote Right Side */}
+                <div className="quote-right float-anim-reverse hidden lg:block">
+                  <span className="quote-mark">“</span>
+                    প্রশ্ন করো,<br/>খুঁটিয়ে দেখো,<br/>নিজেই <span>আবিষ্কার করো।</span>
+                  <span className="quote-mark right">”</span>
+                </div>
+              </div>
+
+              {/* Stats Bar */}
+              <div className="stats-bar fade-up-anim w-full">
+                <div className="stat-item">
+                  <div className="stat-icon"><Globe size={24} /></div>
+                  <h3>195</h3>
+                  <p>দেশ</p>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-icon"><Box size={24} /></div>
+                  <h3>3D</h3>
+                  <p>ইন্টারেক্টিভ</p>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-icon"><Brain size={24} /></div>
+                  <h3>AI</h3>
+                  <p>লার্নিং</p>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-icon"><InfinityIcon size={24} /></div>
+                  <h3>∞</h3>
+                  <p>অভিজ্ঞতা</p>
+                </div>
+              </div>
+
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <header className="bg-[var(--surface)] px-6 md:px-10 py-5 border-b border-[var(--border)] flex flex-col md:flex-row justify-between items-center gap-4 transition-colors duration-300">
         <div className="flex items-center gap-3">
@@ -340,7 +394,16 @@ export default function App() {
         <section className="flex flex-col gap-6 min-w-0">
           <div className="flex flex-col gap-4 mb-2">
             <h2 className="text-center text-[var(--primary)] text-xl font-bold tracking-tight">ঘুরিয়ে দেখুন আমাদের পৃথিবী</h2>
-            <GlobeViz focusCountryCode={globeFocusCode} />
+            <GlobeViz 
+              focusCountryCode={globeFocusCode} 
+              onCountryClick={(code) => {
+                const bdData = countries.find(c => c.code === code);
+                if (bdData) {
+                  fetchCountryDetails(code, bdData.country);
+                  setGlobeFocusCode(code);
+                }
+              }} 
+            />
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
