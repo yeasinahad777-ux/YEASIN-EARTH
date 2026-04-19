@@ -7,6 +7,7 @@ import QuizSection from './QuizSection';
 import { GoogleGenAI } from '@google/genai';
 import CurrencyConverter from './CurrencyConverter';
 import AIChatbot from './AIChatbot';
+import WorldRecords from './WorldRecords';
 
 // Initialize Gemini API only when needed to prevent crashes if key is missing
 let ai: GoogleGenAI | null = null;
@@ -248,8 +249,8 @@ export default function App() {
                     <span className="text-sm md:text-base">৭১০০+ জীবিত ভাষা</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <span className="text-xl">📊</span> 
-                    <span className="text-sm md:text-base">ইন্টারেক্টিভ এক্সপ্লোর</span>
+                    <span className="text-xl">🏆</span> 
+                    <span className="text-sm md:text-base">বিশ্ব রেকর্ড (শীর্ষ ১০০ দেশ)</span>
                   </li>
                 </ul>
               </div>
@@ -403,7 +404,7 @@ export default function App() {
               <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">MCQ কুইজ</span>
             </button>
 
-            <button onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })} className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
+            <button onClick={() => window.dispatchEvent(new CustomEvent('open-ai-chat'))} className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
               <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">🤖</span>
               <strong className="block text-lg md:text-xl text-purple-500 mb-1">AI গাইড</strong>
               <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">স্মার্ট চ্যাটবট</span>
@@ -415,11 +416,7 @@ export default function App() {
               <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">জীবিত ভাষা</span>
             </div>
 
-            <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
-              <span className="block text-2xl mb-1">🌐</span>
-              <strong className="block text-xl text-[var(--primary)] mb-1">৭ টি</strong>
-              <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">মহাদেশ</span>
-            </div>
+            <WorldRecords />
           </div>
 
           <div className="flex flex-col gap-4 mb-2">
