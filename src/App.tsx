@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { countries, continents } from './data';
-import { Moon, Sun, Search, X, Loader2, MapPin, PenTool, Globe, Box, Brain, Infinity as InfinityIcon, Mouse, PlayCircle } from 'lucide-react';
+import { Moon, Sun, Search, X, Loader2, MapPin, PenTool, CircleDollarSign } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import GlobeViz from './GlobeViz';
 import QuizSection from './QuizSection';
-import Chatbot from './Chatbot';
 import { GoogleGenAI } from '@google/genai';
+import CurrencyConverter from './CurrencyConverter';
+import AIChatbot from './AIChatbot';
 
 // Initialize Gemini API only when needed to prevent crashes if key is missing
 let ai: GoogleGenAI | null = null;
@@ -31,7 +32,7 @@ interface CountryDetails {
 }
 
 export default function App() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedContinent, setSelectedContinent] = useState('All');
   
@@ -42,7 +43,13 @@ export default function App() {
   const [countrySummary, setCountrySummary] = useState<string | null>(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [isExamMode, setIsExamMode] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showCurrency, setShowCurrency] = useState(false);
+
+  useEffect(() => {
+    // Show welcome every time the user enters
+    setShowWelcome(true);
+  }, []);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -103,10 +110,9 @@ export default function App() {
             // First attempt: With Google Search Grounding for best data
             response = await aiClient.models.generateContent({
               model: 'gemini-3-flash-preview',
-              contents: `Provide a short, engaging geographical summary of ${localName} in Bengali. Mention its capital, key geographical features, and an exact famous landmark or pinned location if possible. Keep it under 3-4 sentences.`,
+              contents: `Provide a short, engaging geographical summary of ${localName} in Bengali. Mention its capital, key geographical features, and a famous landmark. Keep it under 3-4 sentences.`,
               config: {
-                // Grounding via Search & Maps to get accurate and up to date geographical references
-                tools: [{ googleSearch: {} }, { googleMaps: {} }],
+                tools: [{ googleSearch: {} }],
               }
             });
           } catch (initialError: any) {
@@ -186,110 +192,75 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text-main)] font-sans transition-colors duration-300">
       
-      {/* Floating Chatbot */}
-      <Chatbot />
-      
       {/* Welcome Modal */}
       <AnimatePresence>
         {showWelcome && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 0.95, filter: 'blur(10px)' }}
+            exit={{ opacity: 0, scale: 0.9, filter: 'blur(20px)' }}
             transition={{ duration: 0.8 }}
-            className="welcome-wrapper"
+            className="welcome-space-bg fixed inset-0 z-[100] flex items-center justify-center p-4"
           >
-            <div className="space-background"></div>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+              className="bg-[#1e293b]/80 backdrop-blur-md border border-white/10 w-full max-w-[480px] p-8 md:p-10 rounded-[28px] text-center shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative z-10"
+            >
+              <h1 className="text-3xl md:text-[32px] font-bold text-white mb-4 flex flex-col items-center justify-center gap-2 leading-tight">
+                <span className="text-4xl mb-1 mt-2">🌍</span> 
+                <span>3D পৃথিবী <br/> এক্সপ্লোর করুন</span>
+              </h1>
+              
+              <p className="text-[15px] text-gray-300 mb-8 leading-relaxed font-medium">
+                বিশ্বের ১৯৬টি দেশ, 3D ম্যাপ, AI লার্নিং এবং কুইজ—সব একসাথে! পৃথিবী সম্পর্কে জানুন আমাদের সাথে।
+              </p>
 
-            <div className="welcome-inner">
-              {/* Real Astronaut Rising */}
-              <img src="https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTEyL3Jhd3BpeGVsX29mZmljZV8yNF9yZWFsaXN0aWNfaW1hZ2Vfb2ZfYW5fYXN0cm9uYXV0X2Zsb2F0aW5nX2luX180NWMyMDcxNi0wMjg0LTQwZDEtYTFjMi1kODZhNzZhZDAzNWRfMS5wbmc.png" 
-                   className="absolute right-[5%] md:right-[15%] w-[120px] md:w-[220px] animate-rise-up drop-shadow-[0_0_20px_rgba(255,255,255,0.2)] z-0 pointer-events-none" 
-                   alt="Astronaut" />
-
-              {/* Navigation */}
-              <nav className="w-navbar fade-down-anim relative z-10 w-full mt-4">
-                <div className="w-logo">
-                  🌍 <span className="tracking-widest">YEASIN EARTH</span>
-                </div>
-                
-                <ul className="w-nav-links hidden md:flex">
-                  <li><a href="#" onClick={(e) => e.preventDefault()}>হোম</a></li>
-                  <li><a href="#" onClick={(e) => e.preventDefault()}>3D এক্সপ্লোরার</a></li>
-                  <li><a href="#" onClick={(e) => e.preventDefault()}>দেশসমূহ</a></li>
-                  <li><a href="#" onClick={(e) => e.preventDefault()}>AI শেখা</a></li>
-                  <li><a href="#" onClick={(e) => e.preventDefault()}>কুইজ</a></li>
-                  <li><a href="#" onClick={(e) => e.preventDefault()}>আমাদের সম্পর্কে</a></li>
+              <div className="flex justify-center mb-8 w-full">
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 text-left text-gray-200 font-medium w-fit">
+                  <li className="flex items-center gap-3">
+                    <span className="text-xl">🌎</span> 
+                    <span className="text-sm md:text-base">সব দেশের তথ্য</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="text-xl">👥</span> 
+                    <span className="text-sm md:text-base">৮.১ বিলিয়ন+ জনসংখ্যা</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="text-xl">💱</span> 
+                    <span className="text-sm md:text-base">কারেন্সি রেট</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="text-xl">📈</span> 
+                    <span className="text-sm md:text-base">মার্কেট ইনসাইটস</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="text-xl">🧠</span> 
+                    <span className="text-sm md:text-base">MCQ কুইজ</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="text-xl">🤖</span> 
+                    <span className="text-sm md:text-base">AI ভিত্তিক শেখা</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="text-xl">🗣️</span> 
+                    <span className="text-sm md:text-base">৭১০০+ জীবিত ভাষা</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="text-xl">📊</span> 
+                    <span className="text-sm md:text-base">ইন্টারেক্টিভ এক্সপ্লোর</span>
+                  </li>
                 </ul>
-
-                <div className="w-nav-actions">
-                  <span className="hidden md:block"><Search size={18} /></span>
-                  <span className="hidden md:block"><Globe size={18} /></span>
-                  <span className="hidden md:block"><Moon size={18} /></span>
-                  <button onClick={() => setShowWelcome(false)} className="btn-nav">শুরু করুন ➔</button>
-                </div>
-              </nav>
-
-              {/* Hero Section */}
-              <div className="hero-section w-full">
-                <div className="hero-content">
-                  <h1 className="main-title slide-up-1">
-                    পৃথিবীকে জানো,<br/>
-                    <span className="gradient-text animated-gradient">নিজেকে আবিষ্কার করো</span>
-                  </h1>
-                  
-                  <p className="subtitle slide-up-2">অজানা পৃথিবী তোমার অপেক্ষায়...</p>
-                  
-                  <div className="quote-left slide-up-3 float-anim">
-                    <span className="quote-mark">“</span>
-                    যে পৃথিবীকে দেখে না,<br/>সে শুধু এক পাতাই পড়ে।
-                    <span className="quote-mark right">”</span>
-                  </div>
-                  
-                  <div className="hero-buttons slide-up-4">
-                    <button onClick={() => setShowWelcome(false)} className="btn-primary-custom glow-btn">
-                      🚀 এক্সপ্লোর শুরু করুন
-                    </button>
-                    <button className="btn-secondary">
-                      <span className="play-btn-icon"><PlayCircle size={20} /></span>
-                      কিভাবে কাজ করে?
-                    </button>
-                  </div>
-                </div>
-
-                {/* Floating Quote Right Side */}
-                <div className="quote-right float-anim-reverse hidden lg:block">
-                  <span className="quote-mark">“</span>
-                    প্রশ্ন করো,<br/>খুঁটিয়ে দেখো,<br/>নিজেই <span>আবিষ্কার করো।</span>
-                  <span className="quote-mark right">”</span>
-                </div>
               </div>
 
-              {/* Stats Bar */}
-              <div className="stats-bar fade-up-anim w-full">
-                <div className="stat-item">
-                  <div className="stat-icon"><Globe size={24} /></div>
-                  <h3>195</h3>
-                  <p>দেশ</p>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-icon"><Box size={24} /></div>
-                  <h3>3D</h3>
-                  <p>ইন্টারেক্টিভ</p>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-icon"><Brain size={24} /></div>
-                  <h3>AI</h3>
-                  <p>লার্নিং</p>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-icon"><InfinityIcon size={24} /></div>
-                  <h3>∞</h3>
-                  <p>অভিজ্ঞতা</p>
-                </div>
-              </div>
-
-            </div>
+              <button 
+                onClick={() => setShowWelcome(false)}
+                className="w-full py-3.5 rounded-full font-bold text-lg text-white bg-[#0084ff] hover:bg-[#0070e0] active:scale-95 transition-all shadow-lg flex justify-center items-center gap-2 mt-2"
+              >
+                <span>🚀</span> এক্সপ্লোর শুরু করুন
+              </button>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -329,6 +300,13 @@ export default function App() {
               />
             </div>
           )}
+          <button 
+            onClick={() => setShowCurrency(true)}
+            className="px-4 py-2.5 rounded-full font-bold text-sm bg-green-500 text-white hover:bg-green-600 transition-all flex items-center gap-2 shrink-0 shadow-sm"
+          >
+            <CircleDollarSign size={16} />
+            মুদ্রা রূপান্তর
+          </button>
           <button 
             onClick={() => setIsExamMode(!isExamMode)}
             className={`px-4 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 shrink-0 ${
@@ -392,18 +370,61 @@ export default function App() {
         </aside>
 
         <section className="flex flex-col gap-6 min-w-0">
+          
+          {/* Quick Data Points & Actions Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4">
+            <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
+              <span className="block text-2xl mb-1">🌍</span>
+              <strong className="block text-xl text-[var(--primary)] mb-1">১৯৬ টি</strong>
+              <span className="block text-xs font-semibold text-[var(--text-main)]">মোট দেশ</span>
+            </div>
+            
+            <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
+              <span className="block text-2xl mb-1">👥</span>
+              <strong className="block text-xl text-[var(--primary)] mb-1">৮.১ বিলিয়ন+</strong>
+              <span className="block text-xs font-semibold text-[var(--text-main)]">বিশ্বের জনসংখ্যা</span>
+            </div>
+
+            <button onClick={() => setShowCurrency(true)} className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
+              <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">💱</span>
+              <strong className="block text-lg md:text-xl text-green-500 mb-1">লাইভ রেট</strong>
+              <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">কারেন্সি কনভার্টার</span>
+            </button>
+
+            <button onClick={() => setShowCurrency(true)} className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
+              <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">📈</span>
+              <strong className="block text-lg md:text-xl text-blue-500 mb-1">AI অ্যানালাইসিস</strong>
+              <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">মার্কেট ইনসাইটস</span>
+            </button>
+
+            <button onClick={() => setIsExamMode(true)} className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
+              <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">📝</span>
+              <strong className="block text-lg md:text-xl text-red-500 mb-1">প্রস্তুতি নিন</strong>
+              <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">MCQ কুইজ</span>
+            </button>
+
+            <button onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })} className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
+              <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">🤖</span>
+              <strong className="block text-lg md:text-xl text-purple-500 mb-1">AI গাইড</strong>
+              <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">স্মার্ট চ্যাটবট</span>
+            </button>
+
+            <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
+              <span className="block text-2xl mb-1">🗣️</span>
+              <strong className="block text-xl text-[var(--primary)] mb-1">৭১০০+</strong>
+              <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">জীবিত ভাষা</span>
+            </div>
+
+            <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
+              <span className="block text-2xl mb-1">🌐</span>
+              <strong className="block text-xl text-[var(--primary)] mb-1">৭ টি</strong>
+              <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">মহাদেশ</span>
+            </div>
+          </div>
+
           <div className="flex flex-col gap-4 mb-2">
             <h2 className="text-center text-[var(--primary)] text-xl font-bold tracking-tight">ঘুরিয়ে দেখুন আমাদের পৃথিবী</h2>
-            <GlobeViz 
-              focusCountryCode={globeFocusCode} 
-              onCountryClick={(code) => {
-                const bdData = countries.find(c => c.code === code);
-                if (bdData) {
-                  fetchCountryDetails(code, bdData.country);
-                  setGlobeFocusCode(code);
-                }
-              }} 
-            />
+            <GlobeViz focusCountryCode={globeFocusCode} />
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -612,6 +633,16 @@ export default function App() {
           </div>
         </div>
       )}
+      
+      {/* Currency Converter Modal */}
+      <AnimatePresence>
+        {showCurrency && (
+          <CurrencyConverter onClose={() => setShowCurrency(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Persistent Chatbot */}
+      <AIChatbot />
     </div>
   );
 }

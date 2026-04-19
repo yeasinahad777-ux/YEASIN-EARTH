@@ -4,10 +4,9 @@ import { countries } from './data';
 
 interface GlobeVizProps {
   focusCountryCode?: string | null;
-  onCountryClick?: (code: string) => void;
 }
 
-export default function GlobeViz({ focusCountryCode, onCountryClick }: GlobeVizProps) {
+export default function GlobeViz({ focusCountryCode }: GlobeVizProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const globeInstance = useRef<any>(null);
   const geoDataRef = useRef<any[]>([]);
@@ -22,17 +21,23 @@ export default function GlobeViz({ focusCountryCode, onCountryClick }: GlobeVizP
     return iso;
   };
 
-  const getContinentColor = (continent: string, opacity: number) => {
-    switch (continent) {
-      case 'Asia': return `rgba(255, 152, 0, ${opacity})`; // Orange
-      case 'Europe': return `rgba(33, 150, 243, ${opacity})`; // Blue
-      case 'Africa': return `rgba(255, 193, 7, ${opacity})`; // Yellow
-      case 'North America': return `rgba(76, 175, 80, ${opacity})`; // Green
-      case 'South America': return `rgba(233, 30, 99, ${opacity})`; // Pink
-      case 'Oceania': return `rgba(156, 39, 176, ${opacity})`; // Purple
-      case 'Antarctica': return `rgba(158, 158, 158, ${opacity})`; // Grey
-      default: return `rgba(0, 107, 94, ${opacity})`; // Default
+  // মহাদেশ অনুযায়ী কালার
+  const continentColors: Record<string, string> = {
+    'এশিয়া': 'rgba(255, 87, 34, 0.35)',      // Deep Orange
+    'ইউরোপ': 'rgba(33, 150, 243, 0.35)',     // Blue
+    'আফ্রিকা': 'rgba(255, 193, 7, 0.35)',    // Amber
+    'উত্তর আমেরিকা': 'rgba(76, 175, 80, 0.35)',// Green
+    'দক্ষিণ আমেরিকা': 'rgba(156, 39, 176, 0.35)',// Purple
+    'ওশেনিয়া': 'rgba(233, 30, 99, 0.35)',    // Pink
+  };
+
+  const getBaseColor = (d: any) => {
+    const iso = getCorrectISO(d);
+    const bdData = countries.find(c => c.code === iso);
+    if (bdData && bdData.continent) {
+        return continentColors[bdData.continent] || 'rgba(0, 107, 94, 0.2)';
     }
+    return 'rgba(0, 107, 94, 0.2)';
   };
 
   useEffect(() => {
@@ -61,27 +66,37 @@ export default function GlobeViz({ focusCountryCode, onCountryClick }: GlobeVizP
         // ম্যাপের বর্ডার এবং কালার
         globe.polygonsData(geoData)
              .polygonAltitude(0.01)
-             .polygonCapColor((d: any) => getContinentColor(d.properties.CONTINENT, 0.4))
-             .polygonSideColor((d: any) => getContinentColor(d.properties.CONTINENT, 0.1))
+             .polygonCapColor((d: any) => getBaseColor(d))
+             .polygonSideColor(() => 'rgba(0, 0, 0, 0.15)')
              .polygonStrokeColor(() => '#ffffff')
              
              // পপ-আপ ইনফরমেশন
              .polygonLabel(({ properties: d }: any) => {
                  let iso = getCorrectISO({ properties: d });
                  let bdData = countries.find(c => c.code === iso);
-                 if(bdData) {
-                     return `
-                        <div style="background: rgba(0,0,0,0.85); padding: 10px; border-radius: 8px; color: white; font-family: 'Hind Siliguri', sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border: 1px solid #444;">
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
-                                <img src="https://flagcdn.com/w40/${bdData.code}.png" style="width: 30px; border-radius:3px;">
-                                <span style="font-size: 18px; font-weight: bold; color: #4CAF50;">${bdData.country}</span>
-                            </div>
-                            <div style="font-size: 14px;"><b>রাজধানী:</b> ${bdData.capital}</div>
-                            <div style="font-size: 14px;"><b>মহাদেশ:</b> ${bdData.continent}</div>
+                 
+                 const countryName = bdData ? bdData.country : d.ADMIN;
+                 const continentName = bdData ? bdData.continent : (d.CONTINENT || d.REGION_UN || 'N/A');
+                 
+                 return `
+                    <div style="background: rgba(15, 23, 42, 0.95); padding: 12px 16px; border-radius: 12px; color: white; font-family: 'Hind Siliguri', sans-serif; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(4px); min-width: 180px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                            <img src="https://flagcdn.com/w40/${iso}.png" onerror="this.src='https://flagcdn.com/w40/un.png'" style="width: 32px; height: 22px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                            <span style="font-size: 18px; font-weight: 700; color: #f8fafc; letter-spacing: 0.5px;">${countryName}</span>
                         </div>
-                     `;
-                 }
-                 return `<div style="background: rgba(0,0,0,0.8); padding: 8px; border-radius: 5px; color: white;"><b>${d.ADMIN}</b></div>`;
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            ${bdData ? `
+                            <div style="font-size: 14px; color: #cbd5e1; display: flex; align-items: center;">
+                                <span style="color: #94a3b8; font-size: 12px; width: 65px; font-weight: 600;">রাজধানী:</span> 
+                                <span style="font-weight: 600; color: #60a5fa; flex: 1;">${bdData.capital}</span>
+                            </div>` : ''}
+                            <div style="font-size: 14px; color: #cbd5e1; display: flex; align-items: center;">
+                                <span style="color: #94a3b8; font-size: 12px; width: ${bdData ? '65px' : 'auto'}; font-weight: 600; margin-right: ${bdData ? '0' : '8px'};">${bdData ? 'মহাদেশ:' : 'Continent:'}</span> 
+                                <span style="font-weight: 600; color: #34d399; flex: 1;">${continentName}</span>
+                            </div>
+                        </div>
+                    </div>
+                 `;
              })
              // Hover Effect
              .onPolygonHover((hoverD: any) => {
@@ -91,42 +106,17 @@ export default function GlobeViz({ focusCountryCode, onCountryClick }: GlobeVizP
                  })
                  .polygonCapColor((d: any) => {
                     const isFocused = focusCountryCode && getCorrectISO(d) === focusCountryCode.toLowerCase();
-                    if (d === hoverD) return getContinentColor(d.properties.CONTINENT, 0.8);
-                    if (isFocused) return getContinentColor(d.properties.CONTINENT, 0.9);
-                    return getContinentColor(d.properties.CONTINENT, 0.4);
+                    return d === hoverD ? 'rgba(255, 152, 0, 0.9)' : (isFocused ? 'rgba(255, 152, 0, 0.9)' : getBaseColor(d));
                  });
-             })
-             // Click Effect
-             .onPolygonClick((d: any) => {
-                 const iso = getCorrectISO(d);
-                 if (iso && onCountryClick) {
-                     onCountryClick(iso);
-                 }
              });
 
-        // গ্লোবের ওপর সব সময় দেশের নাম ভাসিয়ে রাখা (Labels)
-        const labelData: any[] = [
-            // মহাদেশ (Continents)
-            { lat: 45, lng: 90, name: 'এশিয়া', type: 'continent' },
-            { lat: 50, lng: 15, name: 'ইউরোপ', type: 'continent' },
-            { lat: 5, lng: 20, name: 'আফ্রিকা', type: 'continent' },
-            { lat: 45, lng: -100, name: 'উত্তর আমেরিকা', type: 'continent' },
-            { lat: -15, lng: -60, name: 'দক্ষিণ আমেরিকা', type: 'continent' },
-            { lat: -25, lng: 140, name: 'ওশেনিয়া', type: 'continent' },
-            { lat: -75, lng: 0, name: 'অ্যান্টার্কটিকা', type: 'continent' },
-            // মহাসাগর (Oceans)
-            { lat: 0, lng: -160, name: 'প্রশান্ত মহাসাগর', type: 'ocean' },
-            { lat: 20, lng: -45, name: 'আটলান্টিক মহাসাগর', type: 'ocean' },
-            { lat: -20, lng: 80, name: 'ভারত মহাসাগর', type: 'ocean' },
-            { lat: 80, lng: 0, name: 'উত্তর মহাসাগর', type: 'ocean' },
-            { lat: -60, lng: -90, name: 'দক্ষিণ মহাসাগর', type: 'ocean' }
-        ];
-        
+        // গ্লোবের ওপর সব সময় দেশের নাম, মহাদেশ ও মহাসাগরের নাম ভাসিয়ে রাখা (HTML Elements)
+        const elementData: any[] = [];
         geoData.forEach((d: any) => {
             let iso = getCorrectISO(d);
             let bdData = countries.find(c => c.code === iso);
             if(bdData && d.properties.LABEL_Y && d.properties.LABEL_X) {
-                labelData.push({ 
+                elementData.push({ 
                   lat: d.properties.LABEL_Y, 
                   lng: d.properties.LABEL_X, 
                   name: bdData.country,
@@ -136,47 +126,54 @@ export default function GlobeViz({ focusCountryCode, onCountryClick }: GlobeVizP
             }
         });
 
-        // গ্লোবের ওপর সব সময় দেশের নাম ভাসিয়ে রাখা (HTML Elements দিয়ে, যা বাংলা ১০০% সাপোর্ট করে)
-        globe.labelsData([]); // Clear any existing canvas labels
-        
-        globe.htmlElementsData(labelData)
-             .htmlLat('lat')
-             .htmlLng('lng')
-             .htmlAltitude((d: any) => {
-                 if (d.type === 'ocean') return 0.05;
-                 if (d.type === 'continent') return 0.04;
-                 return 0.01;
-             })
+        // মহাদেশ ও মহাসাগরের তথ্য
+        const regionsData = [
+          { lat: 0, lng: -140, name: 'প্রশান্ত মহাসাগর', pop: 0, type: 'ocean' },
+          { lat: 15, lng: -40, name: 'আটলান্টিক মহাসাগর', pop: 0, type: 'ocean' },
+          { lat: -20, lng: 80, name: 'ভারত মহাসাগর', pop: 0, type: 'ocean' },
+          { lat: 80, lng: 0, name: 'উত্তর মহাসাগর', pop: 0, type: 'ocean' },
+          { lat: -60, lng: 0, name: 'দক্ষিণ মহাসাগর', pop: 0, type: 'ocean' },
+          { lat: 45, lng: 90, name: 'এশিয়া', pop: 0, type: 'continent' },
+          { lat: 10, lng: 20, name: 'আফ্রিকা', pop: 0, type: 'continent' },
+          { lat: 50, lng: 15, name: 'ইউরোপ', pop: 0, type: 'continent' },
+          { lat: 40, lng: -100, name: 'উত্তর আমেরিকা', pop: 0, type: 'continent' },
+          { lat: -15, lng: -60, name: 'দক্ষিণ আমেরিকা', pop: 0, type: 'continent' },
+          { lat: -25, lng: 135, name: 'ওশেনিয়া', pop: 0, type: 'continent' },
+          { lat: -80, lng: 0, name: 'অ্যান্টার্কটিকা', pop: 0, type: 'continent' }
+        ];
+
+        globe.htmlElementsData([...elementData, ...regionsData])
              .htmlElement((d: any) => {
                  const el = document.createElement('div');
-                 el.innerText = d.name;
-                 
-                 // Native CSS styling for perfect font rendering
-                 el.style.fontFamily = '"Hind Siliguri", "Segoe UI", sans-serif';
-                 el.style.whiteSpace = 'nowrap';
-                 el.style.pointerEvents = 'none'; // Prevent glob interacting block
-                 el.style.textShadow = '0px 2px 4px rgba(0,0,0,1), 0px -1px 2px rgba(0,0,0,0.8), 1px 1px 2px rgba(0,0,0,0.8)';
+                 el.innerHTML = d.name;
+                 el.style.fontFamily = "'Hind Siliguri', sans-serif";
+                 el.style.pointerEvents = 'none';
                  el.style.textAlign = 'center';
-                 el.style.transform = 'translate(-50%, -50%)'; // Center pivot
-                 el.style.transition = 'opacity 0.2s';
-
+                 el.style.whiteSpace = 'nowrap';
+                 // To center the div precisely over its coordinate
+                 el.style.transform = 'translate(-50%, -50%)';
+                 
                  if (d.type === 'ocean') {
-                     el.style.color = '#7de3ff'; 
-                     el.style.fontSize = '16px';
-                     el.style.fontWeight = '600';
+                     el.style.color = '#38bdf8'; // Light Blue
                      el.style.fontStyle = 'italic';
+                     el.style.fontWeight = '600';
+                     el.style.fontSize = '14px';
+                     el.style.textShadow = '0px 2px 4px rgba(0,0,0,0.8)';
                  } else if (d.type === 'continent') {
                      el.style.color = '#ffffff';
-                     el.style.fontSize = '18px';
-                     el.style.fontWeight = '700';
+                     el.style.fontWeight = '900';
+                     el.style.fontSize = '24px';
+                     el.style.textShadow = '0px 2px 10px rgba(0,0,0,1), 0px 0px 5px rgba(0,0,0,0.8)';
                      el.style.letterSpacing = '1px';
-                 } else {
-                     el.style.color = 'rgba(255, 255, 255, 0.8)';
-                     el.style.fontSize = d.pop > 50000000 ? '12px' : d.pop > 10000000 ? '10px' : '0px'; // Hide very small country labels to prevent clutter
-                     el.style.fontWeight = '500';
-                     if (d.pop <= 10000000) el.style.display = 'none'; // Ensure small ones are completely hidden
+                 } else { // country
+                     const isLarge = d.pop > 50000000;
+                     const isMedium = d.pop > 10000000;
+                     el.style.color = '#ffffff';
+                     el.style.fontWeight = isLarge ? 'bold' : 'normal';
+                     el.style.fontSize = isLarge ? '14px' : (isMedium ? '11px' : '9px');
+                     el.style.opacity = isLarge ? '1' : (isMedium ? '0.7' : '0.2');
+                     el.style.textShadow = '0px 1px 3px rgba(0,0,0,0.9)';
                  }
-                 
                  return el;
              });
 
@@ -186,9 +183,6 @@ export default function GlobeViz({ focusCountryCode, onCountryClick }: GlobeVizP
           if (targetGeo && targetGeo.properties.LABEL_Y && targetGeo.properties.LABEL_X) {
             globe.pointOfView({ lat: targetGeo.properties.LABEL_Y, lng: targetGeo.properties.LABEL_X, altitude: 0.8 }, 1000);
           }
-        } else {
-          // Default view
-          globe.pointOfView({ lat: 23.68, lng: 90.35, altitude: 1.8 }, 2000); // Focus gently over Asia/Bangladesh by default
         }
       })
       .catch(err => console.error("Error fetching GeoJSON data:", err));
@@ -196,9 +190,11 @@ export default function GlobeViz({ focusCountryCode, onCountryClick }: GlobeVizP
     const handleResize = () => {
       if (containerRef.current && globeInstance.current) {
         const width = containerRef.current.clientWidth;
-        const height = Math.min(width * 0.6, 500);
+        // make it more square on mobile so it doesn't leave huge gaps, limit max height
+        const height = window.innerWidth <= 768 ? Math.min(width * 0.9, 450) : Math.min(width * 0.6, 500);
         globeInstance.current.width(width);
         globeInstance.current.height(height);
+        containerRef.current.style.height = `${height}px`; // enforce container height to prevent empty space below
       }
     };
 
@@ -228,7 +224,7 @@ export default function GlobeViz({ focusCountryCode, onCountryClick }: GlobeVizP
         })
         .polygonCapColor((d: any) => {
           const isFocused = focusCountryCode && getCorrectISO(d) === focusCountryCode.toLowerCase();
-          return isFocused ? getContinentColor(d.properties.CONTINENT, 0.9) : getContinentColor(d.properties.CONTINENT, 0.4);
+          return isFocused ? 'rgba(255, 152, 0, 0.9)' : getBaseColor(d);
         });
 
       if (focusCountryCode) {
@@ -253,7 +249,7 @@ export default function GlobeViz({ focusCountryCode, onCountryClick }: GlobeVizP
   }, [focusCountryCode]);
 
   return (
-    <div className="relative w-full rounded-xl overflow-hidden shadow-lg bg-black flex justify-center items-center border border-[var(--border)]" style={{ minHeight: '300px' }}>
+    <div className="relative w-full rounded-xl overflow-hidden shadow-lg bg-black flex justify-center items-center border border-[var(--border)] transition-all">
       {isLoadingGeo && (
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
           <div className="bg-black/60 text-white px-6 py-3 rounded-full backdrop-blur-sm font-medium animate-pulse">
@@ -261,7 +257,7 @@ export default function GlobeViz({ focusCountryCode, onCountryClick }: GlobeVizP
           </div>
         </div>
       )}
-      <div ref={containerRef} className="w-full h-full"></div>
+      <div ref={containerRef} className="w-full flex justify-center items-center"></div>
     </div>
   );
 }
