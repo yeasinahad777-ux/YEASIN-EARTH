@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { countries, continents } from './data';
-import { Moon, Sun, Search, X, Loader2, MapPin, PenTool, CircleDollarSign, MoreVertical, Menu } from 'lucide-react';
+import { Moon, Sun, Search, X, Loader2, MapPin, PenTool, CircleDollarSign, MoreVertical, Menu, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import GlobeViz from './GlobeViz';
 import QuizSection from './QuizSection';
@@ -36,6 +36,13 @@ export default function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedContinent, setSelectedContinent] = useState('All');
+
+  // Advanced Filter States
+  const [restCountriesData, setRestCountriesData] = useState<any[]>([]);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [populationFilter, setPopulationFilter] = useState('All');
+  const [regionFilter, setRegionFilter] = useState('All');
+  const [languageFilter, setLanguageFilter] = useState('');
   
   const [selectedCountryCode, setSelectedCountryCode] = useState<string | null>(null);
   const [globeFocusCode, setGlobeFocusCode] = useState<string | null>(null);
@@ -45,12 +52,25 @@ export default function App() {
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [isExamMode, setIsExamMode] = useState(false);
   const [isFeaturesMenuOpen, setIsFeaturesMenuOpen] = useState(false);
+  const [showMenuHint, setShowMenuHint] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showCurrency, setShowCurrency] = useState(false);
 
   useEffect(() => {
     // Show welcome every time the user enters
     setShowWelcome(true);
+
+    // Initial check for menu hint
+    const hasSeenMenuHint = localStorage.getItem('hasSeenMenuHint');
+    if (!hasSeenMenuHint) {
+      setShowMenuHint(true);
+    }
+
+    // Fetch extra data for filters
+    fetch('https://restcountries.com/v3.1/all?fields=cca2,population,region,languages')
+      .then(res => res.json())
+      .then(data => setRestCountriesData(data))
+      .catch(err => console.error("Failed to fetch advanced filter data", err));
   }, []);
 
   useEffect(() => {
@@ -60,6 +80,14 @@ export default function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [theme]);
+
+  const openFeaturesMenu = () => {
+    setIsFeaturesMenuOpen(true);
+    if (showMenuHint) {
+      setShowMenuHint(false);
+      localStorage.setItem('hasSeenMenuHint', 'true');
+    }
+  };
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
@@ -178,7 +206,31 @@ export default function App() {
                           englishName.toLowerCase().includes(searchLower) ||
                           country.code.toLowerCase() === searchLower;
                           
-    return matchesContinent && matchesSearch;
+    // Advanced Filters Check
+    let matchesAdvanced = true;
+    if (restCountriesData.length > 0 && (populationFilter !== 'All' || regionFilter !== 'All' || languageFilter.trim() !== '')) {
+      const restData = restCountriesData.find(rc => rc.cca2.toLowerCase() === country.code.toLowerCase());
+      if (restData) {
+        if (populationFilter !== 'All') {
+          const pop = restData.population || 0;
+          if (populationFilter === '<1M' && pop >= 1000000) matchesAdvanced = false;
+          if (populationFilter === '1M-10M' && (pop < 1000000 || pop > 10000000)) matchesAdvanced = false;
+          if (populationFilter === '10M-50M' && (pop < 10000000 || pop > 50000000)) matchesAdvanced = false;
+          if (populationFilter === '>50M' && pop <= 50000000) matchesAdvanced = false;
+        }
+        if (regionFilter !== 'All' && restData.region !== regionFilter) matchesAdvanced = false;
+        if (languageFilter.trim() !== '') {
+          const langs: string[] = restData.languages ? Object.values(restData.languages) : [];
+          const matchesLang = langs.some((L: string) => L.toLowerCase().includes(languageFilter.toLowerCase()));
+          if (!matchesLang) matchesAdvanced = false;
+        }
+      } else {
+        // If advanced filters are active but data not found for country, keep it out to be safe
+        matchesAdvanced = false;
+      }
+    }
+
+    return matchesContinent && matchesSearch && matchesAdvanced;
   });
 
   useEffect(() => {
@@ -327,13 +379,20 @@ export default function App() {
           >
             {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
           </button>
-          <button 
-            onClick={() => setIsFeaturesMenuOpen(true)}
-            className="md:hidden p-2.5 rounded-full bg-[var(--hover-bg)] text-[var(--text-main)] border border-[var(--border)] hover:bg-[var(--border)] transition-colors flex items-center justify-center shrink-0"
-            title="More Features"
-          >
-            <Menu size={18} />
-          </button>
+          <div className="relative md:hidden shrink-0 flex items-center">
+            {showMenuHint && (
+              <div className="absolute right-12 top-1/2 -translate-y-1/2 whitespace-nowrap bg-[var(--primary)] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg animate-pulse pointer-events-none before:content-[''] before:absolute before:top-1/2 before:-translate-y-1/2 before:-right-[5px] before:border-[5px] before:border-transparent before:border-l-[var(--primary)] z-50">
+                আরও ফিচারের জন্য এখানে চাপুন
+              </div>
+            )}
+            <button 
+              onClick={openFeaturesMenu}
+              className={`p-2.5 rounded-full transition-colors flex items-center justify-center ${showMenuHint ? 'bg-blue-500 text-white animate-pulse shadow-md' : 'bg-[var(--hover-bg)] text-[var(--text-main)] border border-[var(--border)] hover:bg-[var(--border)]'}`}
+              title="More Features"
+            >
+              <Menu size={18} />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -418,6 +477,100 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* Advanced Filter Modal */}
+      <AnimatePresence>
+        {isFilterModalOpen && (
+          <div 
+            className="fixed inset-0 bg-black/40 dark:bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsFilterModalOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative"
+            >
+              <div className="flex justify-between items-center p-5 border-b border-[var(--border)] bg-[var(--bg)]">
+                <h2 className="text-xl font-bold text-[var(--text-main)] flex items-center gap-2">
+                  <Filter size={20} className="text-[var(--primary)]" /> ফিল্টার করুন
+                </h2>
+                <button 
+                  onClick={() => setIsFilterModalOpen(false)} 
+                  className="text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--border)] p-1.5 rounded-full transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="p-6 flex flex-col gap-6">
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-[var(--text-main)]">জনসংখ্যা (Population)</label>
+                  <select 
+                    value={populationFilter} 
+                    onChange={(e) => setPopulationFilter(e.target.value)}
+                    className="w-full p-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-[var(--text-main)] outline-none focus:border-[var(--primary)]"
+                  >
+                    <option value="All">সব দেশ</option>
+                    <option value="<1M">১ মিলিয়নের নিচে</option>
+                    <option value="1M-10M">১ থেকে ১০ মিলিয়ন</option>
+                    <option value="10M-50M">১০ থেকে ৫০ মিলিয়ন</option>
+                    <option value=">50M">৫০ মিলিয়নের উপরে</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-[var(--text-main)]">অঞ্চল (Region)</label>
+                  <select 
+                    value={regionFilter} 
+                    onChange={(e) => setRegionFilter(e.target.value)}
+                    className="w-full p-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-[var(--text-main)] outline-none focus:border-[var(--primary)]"
+                  >
+                    <option value="All">সব অঞ্চল</option>
+                    <option value="Asia">এশিয়া (Asia)</option>
+                    <option value="Europe">ইউরোপ (Europe)</option>
+                    <option value="Africa">আফ্রিকা (Africa)</option>
+                    <option value="Americas">আমেরিকা (Americas)</option>
+                    <option value="Oceania">ওশেনিয়া (Oceania)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-[var(--text-main)]">ভাষা (Language) <span className="text-[10px] text-[var(--text-muted)] font-normal">(ইংরেজিতে লিখুন)</span></label>
+                  <input 
+                    type="text" 
+                    value={languageFilter} 
+                    onChange={(e) => setLanguageFilter(e.target.value)}
+                    placeholder="যেমন: English, Arabic, Spanish..."
+                    className="w-full p-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-[var(--text-main)] outline-none focus:border-[var(--primary)]"
+                  />
+                </div>
+
+                <div className="flex gap-3 mt-4">
+                  <button 
+                    onClick={() => {
+                      setPopulationFilter('All');
+                      setRegionFilter('All');
+                      setLanguageFilter('');
+                    }}
+                    className="flex-1 py-2.5 rounded-lg border border-[var(--border)] hover:bg-[var(--hover-bg)] font-semibold transition-colors"
+                  >
+                    রিসেট
+                  </button>
+                  <button 
+                    onClick={() => setIsFilterModalOpen(false)}
+                    className="flex-1 py-2.5 rounded-lg bg-[var(--primary)] text-white hover:opacity-90 font-semibold transition-opacity"
+                  >
+                    এপ্লাই করুন
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {isExamMode ? (
         <main className="flex-1 p-6 md:p-10 max-w-[1400px] mx-auto w-full">
           <QuizSection onExit={() => setIsExamMode(false)} />
@@ -425,9 +578,18 @@ export default function App() {
       ) : (
         <main className="flex-1 p-6 md:p-10 grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8 md:gap-10 max-w-[1400px] mx-auto w-full">
           <aside className="flex flex-col gap-6">
-          <div>
-            <h3 className="text-[11px] uppercase text-[var(--text-muted)] mb-4 font-semibold">মহাদেশসমূহ</h3>
-            <ul className="flex flex-col">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[11px] uppercase text-[var(--text-muted)] font-semibold">মহাদেশসমূহ</h3>
+              <button 
+                onClick={() => setIsFilterModalOpen(true)} 
+                className="flex items-center gap-1.5 text-xs font-bold text-[var(--primary)] hover:underline opacity-80 hover:opacity-100 transition-opacity"
+              >
+                <Filter size={14} /> অ্যাডভান্সড ফিল্টার
+              </button>
+            </div>
+            
+            <ul className="flex flex-row lg:flex-col gap-2 lg:gap-0 overflow-x-auto pb-2 lg:pb-0 hide-scrollbar snap-x">
               {filterOptions.map(option => {
                 const isActive = selectedContinent === option;
                 const count = option === 'All' ? countries.length : countries.filter(c => c.continent === option).length;
@@ -438,17 +600,17 @@ export default function App() {
                               option === 'উত্তর আমেরিকা' ? '🌎 উঃ আমেরিকা' : 
                               option === 'দক্ষিণ আমেরিকা' ? '🌎 দঃ আমেরিকা' : '🌊 ওশেনিয়া';
                 return (
-                  <li key={option}>
+                  <li key={option} className="snap-start shrink-0">
                     <button
                       onClick={() => setSelectedContinent(option)}
-                      className={`w-full text-left px-4 py-3 rounded-lg mb-1 flex justify-between items-center text-sm font-medium transition-colors ${
+                      className={`w-full text-left px-4 py-3 rounded-lg flex justify-between items-center text-sm font-medium transition-colors border lg:border-none whitespace-nowrap lg:whitespace-normal gap-3 ${
                         isActive 
-                          ? 'bg-[var(--primary)] text-white' 
-                          : 'text-[var(--text-main)] hover:bg-[var(--hover-bg)]'
-                      }`}
+                          ? 'bg-[var(--primary)] text-white border-[var(--primary)]' 
+                          : 'bg-[var(--surface)] text-[var(--text-main)] border-[var(--border)] hover:bg-[var(--hover-bg)]'
+                      } lg:mb-1`}
                     >
                       <span>{label}</span>
-                      <span className={`text-[11px] px-2 py-0.5 rounded-full ${isActive ? 'bg-black/20' : 'bg-black/5 dark:bg-white/10'}`}>
+                      <span className={`text-[11px] px-2 py-0.5 rounded-full ${isActive ? 'bg-black/20 text-white' : 'bg-black/5 dark:bg-white/10 text-[var(--text-muted)]'}`}>
                         {count}
                       </span>
                     </button>
@@ -513,9 +675,9 @@ export default function App() {
             <GlobeViz focusCountryCode={globeFocusCode} />
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="flex flex-row overflow-x-auto snap-x hide-scrollbar gap-4 md:grid md:grid-cols-3 xl:grid-cols-4 md:overflow-visible">
             {continents.map((cont, idx) => (
-              <div key={idx} className="bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)] transition-colors duration-300">
+              <div key={idx} className="shrink-0 w-[160px] md:w-auto snap-start bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)] transition-colors duration-300">
                 <span className="block text-xs text-[var(--text-muted)] mb-1">{cont.location}</span>
                 <strong className="block text-2xl text-[var(--primary)] mb-1">{cont.count.replace('টি দেশ', '').replace('কোনো দেশ নেই', '০')}</strong>
                 <span className="block text-sm font-medium text-[var(--text-main)]">{cont.icon} {cont.name}</span>
