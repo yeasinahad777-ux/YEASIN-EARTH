@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { countries, continents } from './data';
-import { Moon, Sun, Search, X, Loader2, MapPin, PenTool, CircleDollarSign } from 'lucide-react';
+import { Moon, Sun, Search, X, Loader2, MapPin, PenTool, CircleDollarSign, MoreVertical, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import GlobeViz from './GlobeViz';
 import QuizSection from './QuizSection';
@@ -44,6 +44,7 @@ export default function App() {
   const [countrySummary, setCountrySummary] = useState<string | null>(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [isExamMode, setIsExamMode] = useState(false);
+  const [isFeaturesMenuOpen, setIsFeaturesMenuOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showCurrency, setShowCurrency] = useState(false);
 
@@ -326,8 +327,96 @@ export default function App() {
           >
             {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
           </button>
+          <button 
+            onClick={() => setIsFeaturesMenuOpen(true)}
+            className="md:hidden p-2.5 rounded-full bg-[var(--hover-bg)] text-[var(--text-main)] border border-[var(--border)] hover:bg-[var(--border)] transition-colors flex items-center justify-center shrink-0"
+            title="More Features"
+          >
+            <Menu size={18} />
+          </button>
         </div>
       </header>
+
+      {/* Features Menu Modal (Mobile Only) */}
+      <AnimatePresence>
+        {isFeaturesMenuOpen && (
+          <div 
+            className="fixed inset-0 bg-black/40 dark:bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsFeaturesMenuOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-4xl max-h-[90vh] bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative"
+            >
+              <div className="flex justify-between items-center p-5 border-b border-[var(--border)] bg-[var(--bg)]">
+                <h2 className="text-xl font-bold text-[var(--text-main)] flex items-center gap-2">
+                  <span className="text-2xl">✨</span> আরও ফিচার্স
+                </h2>
+                <button 
+                  onClick={() => setIsFeaturesMenuOpen(false)} 
+                  className="text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--border)] p-1.5 rounded-full transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="p-6 overflow-y-auto">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
+                    <span className="block text-2xl mb-1">🌍</span>
+                    <strong className="block text-xl text-[var(--primary)] mb-1">১৯৬ টি</strong>
+                    <span className="block text-xs font-semibold text-[var(--text-main)]">মোট দেশ</span>
+                  </div>
+                  
+                  <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
+                    <span className="block text-2xl mb-1">👥</span>
+                    <strong className="block text-xl text-[var(--primary)] mb-1">৮.১ বিলিয়ন+</strong>
+                    <span className="block text-xs font-semibold text-[var(--text-main)]">বিশ্বের জনসংখ্যা</span>
+                  </div>
+
+                  <button onClick={() => { setIsFeaturesMenuOpen(false); setShowCurrency(true); }} className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
+                    <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">💱</span>
+                    <strong className="block text-lg text-green-500 mb-1">লাইভ রেট</strong>
+                    <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">কারেন্সি কনভার্টার</span>
+                  </button>
+
+                  <button onClick={() => { setIsFeaturesMenuOpen(false); setShowCurrency(true); }} className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
+                    <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">📈</span>
+                    <strong className="block text-lg text-blue-500 mb-1">AI অ্যানালাইসিস</strong>
+                    <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">মার্কেট ইনসাইটস</span>
+                  </button>
+
+                  <button onClick={() => { setIsFeaturesMenuOpen(false); setIsExamMode(true); }} className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
+                    <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">📝</span>
+                    <strong className="block text-lg text-red-500 mb-1">প্রস্তুতি নিন</strong>
+                    <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">MCQ কুইজ</span>
+                  </button>
+
+                  <button onClick={() => { setIsFeaturesMenuOpen(false); window.dispatchEvent(new CustomEvent('open-ai-chat')); }} className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
+                    <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">🤖</span>
+                    <strong className="block text-lg text-purple-500 mb-1">AI গাইড</strong>
+                    <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">স্মার্ট চ্যাটবট</span>
+                  </button>
+
+                  <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
+                    <span className="block text-2xl mb-1">🗣️</span>
+                    <strong className="block text-xl text-[var(--primary)] mb-1">৭১০০+</strong>
+                    <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">জীবিত ভাষা</span>
+                  </div>
+
+                  <div onClick={() => setIsFeaturesMenuOpen(false)}>
+                    <WorldRecords />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {isExamMode ? (
         <main className="flex-1 p-6 md:p-10 max-w-[1400px] mx-auto w-full">
@@ -372,8 +461,8 @@ export default function App() {
 
         <section className="flex flex-col gap-6 min-w-0">
           
-          {/* Quick Data Points & Actions Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4">
+          {/* Quick Data Points & Actions Grid (Desktop Only) */}
+          <div className="hidden md:grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4 mb-2">
             <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
               <span className="block text-2xl mb-1">🌍</span>
               <strong className="block text-xl text-[var(--primary)] mb-1">১৯৬ টি</strong>
@@ -436,14 +525,14 @@ export default function App() {
 
           <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl overflow-hidden flex-1 flex flex-col transition-colors duration-300">
             {/* Desktop View (Table) */}
-            <div className="hidden md:block overflow-x-auto">
+            <div className="w-full">
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr>
-                    <th className="bg-[var(--bg)] p-4 text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold whitespace-nowrap">মহাদেশ</th>
-                    <th className="bg-[var(--bg)] p-4 text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold whitespace-nowrap">পতাকা ও দেশ</th>
-                    <th className="bg-[var(--bg)] p-4 text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold whitespace-nowrap">রাজধানী</th>
-                    <th className="bg-[var(--bg)] p-4 text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold whitespace-nowrap">প্রতিবেশী দেশ</th>
+                    <th className="bg-[var(--bg)] p-3 md:p-4 text-[11px] md:text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold">মহাদেশ</th>
+                    <th className="bg-[var(--bg)] p-3 md:p-4 text-[11px] md:text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold">পতাকা ও দেশ</th>
+                    <th className="bg-[var(--bg)] p-3 md:p-4 text-[11px] md:text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold">রাজধানী</th>
+                    <th className="bg-[var(--bg)] p-3 md:p-4 text-[11px] md:text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold">প্রতিবেশী দেশ</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -460,86 +549,25 @@ export default function App() {
                         onClick={() => fetchCountryDetails(country.code, country.country)}
                         className="hover:bg-[var(--hover-bg)] transition-colors duration-150 cursor-pointer"
                       >
-                        <td className="p-4 text-sm border-b border-[var(--border)] text-[var(--text-muted)] whitespace-nowrap">{country.continent}</td>
-                        <td className="p-4 text-sm border-b border-[var(--border)] whitespace-nowrap">
-                          <div className="flex items-center gap-3">
+                        <td className="p-3 md:p-4 text-xs md:text-sm border-b border-[var(--border)] text-[var(--text-muted)] align-top">{country.continent}</td>
+                        <td className="p-3 md:p-4 text-xs md:text-sm border-b border-[var(--border)] align-top">
+                          <div className="flex items-center gap-2 md:gap-3 flex-wrap">
                             <img 
                               src={`https://flagcdn.com/w40/${country.code}.png`} 
-                              className="w-6 h-4 object-cover rounded-sm bg-[#cbd5e1] shadow-sm" 
+                              className="w-5 h-auto md:w-6 md:h-4 object-cover rounded-[2px] bg-[#cbd5e1] shadow-sm" 
                               alt={`${country.country} Flag`}
                               referrerPolicy="no-referrer"
                             />
-                            <span className="font-semibold text-[var(--text-main)]">{country.country}</span>
+                            <span className="font-semibold text-[var(--text-main)] break-words">{country.country}</span>
                           </div>
                         </td>
-                        <td className="p-4 text-sm border-b border-[var(--border)] text-[var(--text-main)] whitespace-nowrap">{country.capital}</td>
-                        <td className="p-4 text-sm border-b border-[var(--border)] text-[var(--text-muted)]">{country.neighbors}</td>
+                        <td className="p-3 md:p-4 text-xs md:text-sm border-b border-[var(--border)] text-[var(--text-main)] align-top break-words">{country.capital}</td>
+                        <td className="p-3 md:p-4 text-xs md:text-sm border-b border-[var(--border)] text-[var(--text-muted)] align-top break-words max-w-[200px] leading-relaxed">{country.neighbors}</td>
                       </tr>
                     ))
                   )}
                 </tbody>
               </table>
-            </div>
-
-            {/* Mobile View (Cards) */}
-            <div className="md:hidden flex flex-col gap-4 p-4 bg-[var(--bg)]">
-              <h2 className="text-center text-[var(--primary)] text-xl font-bold mb-2">দেশের তালিকা</h2>
-              {filteredCountries.length === 0 ? (
-                <div className="text-center p-8 bg-[var(--surface)] rounded-xl border border-[var(--border)]">
-                  <p className="text-[var(--text-muted)]">কোনো দেশ পাওয়া যায়নি!</p>
-                </div>
-              ) : (
-                filteredCountries.map((country, idx) => {
-                  const neighbors = country.neighbors.split(',').map(n => n.trim());
-                  return (
-                    <div 
-                      key={idx} 
-                      onClick={() => fetchCountryDetails(country.code, country.country)}
-                      className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 shadow-sm cursor-pointer relative transition-transform active:scale-95"
-                    >
-                      <span className="absolute top-5 right-5 text-xs font-bold bg-[var(--hover-bg)] text-[var(--primary)] px-3 py-1 rounded-full">
-                        {country.continent}
-                      </span>
-                      
-                      <div className="flex items-center gap-4 mb-5 pb-4 border-b border-dashed border-[var(--border)]">
-                        <img 
-                          src={`https://flagcdn.com/w80/${country.code}.png`} 
-                          alt={`${country.country} flag`} 
-                          className="w-12 rounded-md border border-gray-200 shadow-sm"
-                          loading="lazy"
-                        />
-                        <div className="text-2xl font-bold text-[var(--text-main)]">{country.country}</div>
-                      </div>
-                      
-                      <div className="flex flex-col gap-4">
-                        <div className="text-left">
-                          <div className="text-[13px] text-slate-500 mb-1 font-semibold">রাজধানী</div>
-                          <div className="text-lg font-semibold text-[var(--text-main)] flex items-center gap-2">
-                            🏛️ {country.capital}
-                          </div>
-                        </div>
-                        
-                        <div className="text-left">
-                          <div className="text-[13px] text-slate-500 mb-1 font-semibold">প্রতিবেশী দেশ</div>
-                          <div className="flex flex-wrap gap-2 mt-1">
-                            {country.neighbors === 'নেই, নেই' ? (
-                              <span className="bg-[var(--badge-bg)] text-[var(--badge-text)] px-3 py-1.5 rounded-full text-sm font-semibold border border-black/5">
-                                কোনো প্রতিবেশী নেই
-                              </span>
-                            ) : (
-                              neighbors.map((n, i) => (
-                                <span key={i} className="bg-[var(--badge-bg)] text-[var(--badge-text)] px-3 py-1.5 rounded-full text-sm font-semibold border border-black/5">
-                                  {n}
-                                </span>
-                              ))
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
             </div>
           </div>
         </section>
