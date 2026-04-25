@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Hind Siliguri', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Inter', 'Hind Siliguri', system-ui, -apple-system, sans-serif;
 }
 
 :root {
-  --bg: #f8fafc;
-  --surface: #ffffff;
-  --primary: #0d9488;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
-  --hover-bg: #f1f5f9;
+  --bg: #030712;
+  --surface: rgba(255, 255, 255, 0.03);
+  --border: rgba(255, 255, 255, 0.08);
+  --primary: #3b82f6; /* text-blue-500 */
+  --text-main: #f8fafc;
+  --text-muted: #9ca3af;
+  --hover-bg: rgba(255, 255, 255, 0.08);
 }
 
 .dark {
-  --bg: #0f172a;
-  --surface: #1e293b;
-  --primary: #14b8a6;
+  --bg: #030712;
+  --surface: rgba(255, 255, 255, 0.03);
+  --primary: #3b82f6;
   --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --border: #334155;
-  --hover-bg: #334155;
+  --text-muted: #9ca3af;
+  --border: rgba(255, 255, 255, 0.08);
+  --hover-bg: rgba(255, 255, 255, 0.08);
 }
 
 body {
@@ -29,6 +29,26 @@ body {
   color: var(--text-main);
   font-family: var(--font-sans);
   transition: background-color 0.3s, color 0.3s;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* কন্টেন্ট মাঝখানে রাখার ক্লাস */
+.container-custom {
+  @apply max-w-7xl mx-auto px-6;
+}
+
+/* আধুনিক কাঁচের মতো স্বচ্ছ ইফেক্ট */
+.glass {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--border);
+}
+
+.globe-wrapper {
+  @apply relative rounded-[32px] overflow-hidden border border-white/10 shadow-2xl;
+  background: radial-gradient(circle at center, #1e293b 0%, #030712 100%);
+  height: 65vh;
 }
 
 .hide-scrollbar::-webkit-scrollbar {

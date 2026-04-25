@@ -140,7 +140,7 @@ export default function App() {
             // First attempt: With Google Search Grounding for best data
             response = await aiClient.models.generateContent({
               model: 'gemini-3-flash-preview',
-              contents: `Provide a short, engaging geographical summary of ${localName} in Bengali. Mention its capital, key geographical features, and a famous landmark. Keep it under 3-4 sentences.`,
+              contents: `Provide a short, engaging geographical summary of ${localName} in Bengali. Mention its capital, key geographical features, and a famous landmark. Keep it precisely 2-3 sentences.`,
               config: {
                 tools: [{ googleSearch: {} }],
               }
@@ -154,7 +154,7 @@ export default function App() {
             if (initialErrorMsg.includes('429') || initialErrorMsg.includes('quota') || initialErrorMsg.includes('resource_exhausted')) {
               response = await aiClient.models.generateContent({
                 model: 'gemini-3-flash-preview',
-                contents: `Provide a short, engaging geographical summary of ${localName} in Bengali. Mention its capital, key geographical features, and a famous landmark. Keep it under 3-10 sentences.`,
+                contents: `Provide a short, engaging geographical summary of ${localName} in Bengali. Mention its capital, key geographical features, and a famous landmark. Keep it precisely 2-3 sentences.`,
               });
             } else {
               throw initialError;
@@ -244,7 +244,7 @@ export default function App() {
   const filterOptions = ['All', 'এশিয়া', 'ইউরোপ', 'আফ্রিকা', 'উত্তর আমেরিকা', 'দক্ষিণ আমেরিকা', 'ওশেনিয়া'];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text-main)] font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-[#030712] text-white selection:bg-blue-500/30">
       
       {/* Welcome Modal */}
       <AnimatePresence>
@@ -260,26 +260,26 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.4 }}
-              className="bg-[#1e293b]/80 backdrop-blur-md border border-white/10 w-full max-w-[480px] p-8 md:p-10 rounded-[28px] text-center shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative z-10"
+              className="bg-[#0a0a12]/90 backdrop-blur-xl border border-white/10 w-full max-w-[500px] p-8 md:p-10 rounded-[32px] text-center shadow-2xl relative z-10"
             >
-              <h1 className="text-3xl md:text-[32px] font-bold text-white mb-4 flex flex-col items-center justify-center gap-2 leading-tight">
-                <span className="text-4xl mb-1 mt-2">🌍</span> 
+              <h1 className="text-3xl md:text-4xl font-black text-white mb-4 flex flex-col items-center justify-center gap-3 leading-tight">
+                <span className="text-5xl mb-2 mt-2 drop-shadow-lg">🌍</span> 
                 <span>3D পৃথিবী <br/> এক্সপ্লোর করুন</span>
               </h1>
               
-              <p className="text-[15px] text-gray-300 mb-8 leading-relaxed font-medium">
+              <p className="text-[15px] text-gray-400 mb-8 leading-relaxed font-medium">
                 বিশ্বের ১৯৬টি দেশ, 3D ম্যাপ, AI লার্নিং এবং কুইজ—সব একসাথে! পৃথিবী সম্পর্কে জানুন আমাদের সাথে।
               </p>
 
-              <div className="flex justify-center mb-8 w-full">
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 text-left text-gray-200 font-medium w-fit">
+              <div className="flex justify-center mb-10 w-full">
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8 text-left text-gray-300 font-medium w-fit bg-white/5 p-6 rounded-2xl border border-white/5">
                   <li className="flex items-center gap-3">
                     <span className="text-xl">🌎</span> 
                     <span className="text-sm md:text-base">সব দেশের তথ্য</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <span className="text-xl">👥</span> 
-                    <span className="text-sm md:text-base">৮.১ বিলিয়ন+ জনসংখ্যা</span>
+                    <span className="text-sm md:text-base cursor-help" title="অফলাইন ডাটা অনুযায়ী">৮.১ বিলিয়ন+ জনসংখ্যা</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <span className="text-xl">💱</span> 
@@ -299,18 +299,18 @@ export default function App() {
                   </li>
                   <li className="flex items-center gap-3">
                     <span className="text-xl">🗣️</span> 
-                    <span className="text-sm md:text-base">৭১০০+ জীবিত ভাষা</span>
+                    <span className="text-sm md:text-base cursor-help" title="অফলাইন ডাটা অনুযায়ী">৭১০০+ জীবিত ভাষা</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <span className="text-xl">🏆</span> 
-                    <span className="text-sm md:text-base">বিশ্ব রেকর্ড (শীর্ষ ১০০ দেশ)</span>
+                    <span className="text-sm md:text-base">বিশ্ব রেকর্ড</span>
                   </li>
                 </ul>
               </div>
 
               <button 
                 onClick={() => setShowWelcome(false)}
-                className="w-full py-3.5 rounded-full font-bold text-lg text-white bg-[#0084ff] hover:bg-[#0070e0] active:scale-95 transition-all shadow-lg flex justify-center items-center gap-2 mt-2"
+                className="w-full py-4 rounded-full font-bold text-lg text-white bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all shadow-lg shadow-blue-500/20 flex justify-center items-center gap-2"
               >
                 <span>🚀</span> এক্সপ্লোর শুরু করুন
               </button>
@@ -319,88 +319,85 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <header className="bg-[var(--surface)] px-6 md:px-10 py-5 border-b border-[var(--border)] flex flex-col md:flex-row justify-between items-center gap-4 transition-colors duration-300">
-        <div className="flex items-center gap-3">
-          <div className="relative w-12 h-12 shrink-0">
-            <img 
-              src="https://i.postimg.cc/hjm8xZYr/1000105481-01-2.jpg" 
-              alt="YEASIN EARTH" 
-              className="w-full h-full rounded-full object-cover border-2 border-[var(--primary)] shadow-sm"
-              onError={(e) => {
-                e.currentTarget.src = "https://ui-avatars.com/api/?name=YE&background=0d9488&color=fff";
-              }}
+      <nav className="fixed top-0 w-full z-50 bg-[#0a0a12]/80 backdrop-blur-md border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          
+          {/* লোগো সেকশন */}
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-full flex items-center justify-center border border-white/20 shadow-lg shadow-blue-500/20">
+              <span className="text-xl">🌍</span>
+            </div>
+            <div>
+              <h1 className="text-lg font-black tracking-tighter leading-none">YEASIN EARTH</h1>
+              <p className="text-[10px] text-blue-400 font-medium tracking-widest uppercase mt-1">GK Database</p>
+            </div>
+          </div>
+
+          {/* ডেস্কটপ সার্চ বার */}
+          <div className="hidden lg:flex relative group">
+            <Search className="absolute left-3 top-2.5 text-gray-500 group-focus-within:text-blue-400" size={18} />
+            <input 
+              type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="দেশ বা রাজধানী খুঁজুন..." 
+              className="bg-white/5 border border-white/10 rounded-full pl-10 pr-4 py-2 text-sm w-64 outline-none focus:border-blue-500/50 transition-all focus:bg-white/10"
             />
           </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-[var(--text-main)]">YEASIN EARTH</h1>
-            <p className="text-xs text-[var(--text-muted)]">বিশ্বের ১৯৬ দেশের সম্পূর্ণ তথ্যভাণ্ডার ও কুইজ টেস্ট</p>
-            <p className="text-sm md:text-base text-[var(--primary)] font-bold mt-1.5 animate-pulse">
-              আরও তথ্য নিচে দেওয়া হলো 👇
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 w-full md:w-auto flex-wrap md:flex-nowrap">
-          {!isExamMode && (
-            <div className="relative flex-1 md:w-72">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-[var(--primary)]" />
-              </div>
-              <input 
-                type="text" 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 border-2 border-[var(--border)] rounded-full text-sm bg-[var(--bg)] text-[var(--text-main)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--primary)] transition-colors shadow-sm"
-                placeholder="দেশ বা রাজধানী খুঁজুন..."
-              />
-            </div>
-          )}
-          <button 
-            onClick={() => setShowCurrency(true)}
-            className="px-4 py-2.5 rounded-full font-bold text-sm bg-green-500 text-white hover:bg-green-600 transition-all flex items-center gap-2 shrink-0 shadow-sm"
-          >
-            <CircleDollarSign size={16} />
-            মুদ্রা রূপান্তর
-          </button>
-          <button 
-            onClick={() => setIsExamMode(!isExamMode)}
-            className={`px-4 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 shrink-0 ${
-              isExamMode 
-                ? 'bg-[var(--hover-bg)] text-[var(--text-main)] border border-[var(--border)] hover:bg-[var(--border)]' 
-                : 'bg-red-500 text-white hover:bg-red-600 animate-[pulse_2s_infinite]'
-            }`}
-          >
-            <PenTool size={16} />
-            {isExamMode ? 'হোম পেজ' : 'MCQ পরীক্ষা দিন'}
-          </button>
-          <button 
-            onClick={toggleTheme}
-            className="p-2.5 rounded-full bg-[var(--hover-bg)] text-[var(--text-main)] border border-[var(--border)] hover:bg-[var(--border)] transition-colors flex items-center justify-center shrink-0"
-            title="Toggle Theme"
-          >
-            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-          </button>
-          <div className="relative md:hidden shrink-0 flex items-center">
-            {showMenuHint && (
-              <div className="absolute right-12 top-1/2 -translate-y-1/2 whitespace-nowrap bg-[var(--primary)] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg animate-pulse pointer-events-none before:content-[''] before:absolute before:top-1/2 before:-translate-y-1/2 before:-right-[5px] before:border-[5px] before:border-transparent before:border-l-[var(--primary)] z-50">
-                আরও ফিচারের জন্য এখানে চাপুন
-              </div>
-            )}
+
+          {/* ডান পাশের বাটন এবং মেনু */}
+          <div className="flex items-center gap-2">
             <button 
-              onClick={openFeaturesMenu}
-              className={`p-2.5 rounded-full transition-colors flex items-center justify-center ${showMenuHint ? 'bg-blue-500 text-white animate-pulse shadow-md' : 'bg-[var(--hover-bg)] text-[var(--text-main)] border border-[var(--border)] hover:bg-[var(--border)]'}`}
-              title="More Features"
+              onClick={() => setShowCurrency(true)}
+              className="hidden sm:flex items-center gap-2 bg-emerald-600/10 text-emerald-400 border border-emerald-500/20 px-4 py-2 rounded-full text-xs font-bold hover:bg-emerald-600 hover:text-white transition-all active:scale-95"
             >
-              <Menu size={18} />
+              <CircleDollarSign size={14} />
+              মুদ্রা রূপান্তর
             </button>
+            
+            <button 
+              onClick={() => setIsExamMode(!isExamMode)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95 ${
+                isExamMode 
+                  ? 'bg-gray-600/10 text-gray-400 border border-gray-500/20 hover:bg-gray-600 hover:text-white' 
+                  : 'bg-rose-600/10 text-rose-400 border border-rose-500/20 hover:bg-rose-600 hover:text-white'
+              }`}
+            >
+              <PenTool size={14} />
+              <span className="hidden xs:block">{isExamMode ? 'হোম পেজ' : 'MCQ টেস্ট'}</span>
+            </button>
+
+            <button 
+              onClick={toggleTheme}
+              className="p-2 bg-white/5 rounded-full border border-white/10 hover:bg-white/10 transition-colors text-white"
+              title="Toggle Theme"
+            >
+              {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+            </button>
+
+            <div className="relative md:hidden shrink-0 flex items-center ml-1">
+              {showMenuHint && (
+                <div className="absolute right-12 top-1/2 -translate-y-1/2 whitespace-nowrap bg-blue-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg animate-pulse pointer-events-none before:content-[''] before:absolute before:top-1/2 before:-translate-y-1/2 before:-right-[5px] before:border-[5px] before:border-transparent before:border-l-blue-500 z-50">
+                  আরও ফিচারের জন্য এখানে চাপুন
+                </div>
+              )}
+              <button 
+                onClick={openFeaturesMenu}
+                className={`p-2.5 rounded-xl transition-colors flex items-center justify-center ${showMenuHint ? 'bg-blue-500 text-white animate-pulse shadow-md' : 'bg-white/5 border border-white/10 hover:bg-white/10 text-white'}`}
+                title="More Features"
+              >
+                {isFeaturesMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            </div>
           </div>
         </div>
-      </header>
+      </nav>
 
       {/* Features Menu Modal (Mobile Only) */}
       <AnimatePresence>
         {isFeaturesMenuOpen && (
           <div 
-            className="fixed inset-0 bg-black/40 dark:bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity"
             onClick={() => setIsFeaturesMenuOpen(false)}
           >
             <motion.div
@@ -409,65 +406,59 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.2 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-4xl max-h-[90vh] bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative"
+              className="w-full max-w-4xl max-h-[90vh] bg-[#0a0a12] border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden relative"
             >
-              <div className="flex justify-between items-center p-5 border-b border-[var(--border)] bg-[var(--bg)]">
-                <h2 className="text-xl font-bold text-[var(--text-main)] flex items-center gap-2">
+              <div className="flex justify-between items-center p-5 border-b border-white/5 bg-white/5">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   <span className="text-2xl">✨</span> আরও ফিচার্স
                 </h2>
                 <button 
                   onClick={() => setIsFeaturesMenuOpen(false)} 
-                  className="text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--border)] p-1.5 rounded-full transition-colors"
+                  className="text-gray-400 hover:text-white hover:bg-white/10 p-1.5 rounded-full transition-colors"
                 >
                   <X size={24} />
                 </button>
               </div>
 
-              <div className="p-6 overflow-y-auto">
+              <div className="p-6 overflow-y-auto hide-scrollbar">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
+                  <div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
                     <span className="block text-2xl mb-1">🌍</span>
-                    <strong className="block text-xl text-[var(--primary)] mb-1">১৯৬ টি</strong>
-                    <span className="block text-xs font-semibold text-[var(--text-main)]">মোট দেশ</span>
+                    <strong className="block text-xl text-blue-500 mb-1 font-black">১৯৬ টি</strong>
+                    <span className="block text-xs font-semibold text-gray-400">মোট দেশ</span>
                   </div>
                   
-                  <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
+                  <div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
                     <span className="block text-2xl mb-1">👥</span>
-                    <strong className="block text-xl text-[var(--primary)] mb-1">৮.১ বিলিয়ন+</strong>
-                    <span className="block text-xs font-semibold text-[var(--text-main)]">বিশ্বের জনসংখ্যা</span>
+                    <strong className="block text-xl text-indigo-500 mb-1 font-black cursor-help" title="অফলাইন ডাটা অনুযায়ী">৮.১ বিলিয়ন+</strong>
+                    <span className="block text-xs font-semibold text-gray-400">বিশ্বের জনসংখ্যা</span>
                   </div>
 
-                  <button onClick={() => { setIsFeaturesMenuOpen(false); setShowCurrency(true); }} className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
-                    <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">💱</span>
-                    <strong className="block text-lg text-green-500 mb-1">লাইভ রেট</strong>
-                    <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">কারেন্সি কনভার্টার</span>
-                  </button>
+          <button onClick={() => { setIsFeaturesMenuOpen(false); setShowCurrency(true); }} className="bg-[#030712] p-4 rounded-2xl border border-white/10 hover:border-emerald-500/50 hover:bg-white/5 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
+            <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">💱</span>
+            <strong className="block text-lg text-emerald-400 mb-1 font-bold">লাইভ রেট</strong>
+            <span className="block text-[10px] md:text-xs font-semibold text-gray-400">কারেন্সি কনভার্টার</span>
+          </button>
 
-                  <button onClick={() => { setIsFeaturesMenuOpen(false); setShowCurrency(true); }} className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
-                    <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">📈</span>
-                    <strong className="block text-lg text-blue-500 mb-1">AI অ্যানালাইসিস</strong>
-                    <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">মার্কেট ইনসাইটস</span>
-                  </button>
+          <button onClick={() => { setIsFeaturesMenuOpen(false); setIsExamMode(true); }} className="bg-[#030712] p-4 rounded-2xl border border-white/10 hover:border-rose-500/50 hover:bg-white/5 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
+            <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">📝</span>
+            <strong className="block text-lg text-rose-400 mb-1 font-bold">প্রস্তুতি নিন</strong>
+            <span className="block text-[10px] md:text-xs font-semibold text-gray-400">MCQ কুইজ</span>
+          </button>
 
-                  <button onClick={() => { setIsFeaturesMenuOpen(false); setIsExamMode(true); }} className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
-                    <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">📝</span>
-                    <strong className="block text-lg text-red-500 mb-1">প্রস্তুতি নিন</strong>
-                    <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">MCQ কুইজ</span>
-                  </button>
+          <button onClick={() => { setIsFeaturesMenuOpen(false); window.dispatchEvent(new CustomEvent('open-ai-chat')); }} className="bg-[#030712] p-4 rounded-2xl border border-white/10 hover:border-blue-500/50 hover:bg-white/5 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
+            <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">🤖</span>
+            <strong className="block text-lg text-blue-400 mb-1 font-bold">AI গাইড</strong>
+            <span className="block text-[10px] md:text-xs font-semibold text-gray-400">স্মার্ট চ্যাটবট</span>
+          </button>
 
-                  <button onClick={() => { setIsFeaturesMenuOpen(false); window.dispatchEvent(new CustomEvent('open-ai-chat')); }} className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
-                    <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">🤖</span>
-                    <strong className="block text-lg text-purple-500 mb-1">AI গাইড</strong>
-                    <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">স্মার্ট চ্যাটবট</span>
-                  </button>
+          <div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
+            <span className="block text-2xl mb-1">🗣️</span>
+            <strong className="block text-xl text-blue-500 mb-1 font-black cursor-help" title="অফলাইন ডাটা অনুযায়ী">৭১০০+</strong>
+            <span className="block text-[10px] md:text-xs font-semibold text-gray-400">জীবিত ভাষা</span>
+          </div>
 
-                  <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
-                    <span className="block text-2xl mb-1">🗣️</span>
-                    <strong className="block text-xl text-[var(--primary)] mb-1">৭১০০+</strong>
-                    <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">জীবিত ভাষা</span>
-                  </div>
-
-                  <div onClick={() => setIsFeaturesMenuOpen(false)}>
+                  <div onClick={() => setIsFeaturesMenuOpen(false)} className="col-span-2 lg:col-span-4 rounded-2xl overflow-hidden border border-white/10">
                     <WorldRecords />
                   </div>
                 </div>
@@ -481,7 +472,7 @@ export default function App() {
       <AnimatePresence>
         {isFilterModalOpen && (
           <div 
-            className="fixed inset-0 bg-black/40 dark:bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity"
             onClick={() => setIsFilterModalOpen(false)}
           >
             <motion.div
@@ -490,15 +481,15 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.2 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative"
+              className="w-full max-w-md bg-[#0a0a12] border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden relative"
             >
-              <div className="flex justify-between items-center p-5 border-b border-[var(--border)] bg-[var(--bg)]">
-                <h2 className="text-xl font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <Filter size={20} className="text-[var(--primary)]" /> ফিল্টার করুন
+              <div className="flex justify-between items-center p-5 border-b border-white/5 bg-white/5">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Filter size={20} className="text-blue-500" /> ফিল্টার করুন
                 </h2>
                 <button 
                   onClick={() => setIsFilterModalOpen(false)} 
-                  className="text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--border)] p-1.5 rounded-full transition-colors"
+                  className="text-gray-400 hover:text-white hover:bg-white/10 p-1.5 rounded-full transition-colors"
                 >
                   <X size={20} />
                 </button>
@@ -506,11 +497,11 @@ export default function App() {
 
               <div className="p-6 flex flex-col gap-6">
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-[var(--text-main)]">জনসংখ্যা (Population)</label>
+                  <label className="block text-sm font-semibold mb-2 text-gray-300">জনসংখ্যা (Population)</label>
                   <select 
                     value={populationFilter} 
                     onChange={(e) => setPopulationFilter(e.target.value)}
-                    className="w-full p-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-[var(--text-main)] outline-none focus:border-[var(--primary)]"
+                    className="w-full p-3 rounded-xl border border-white/10 bg-[#030712] text-white outline-none focus:border-blue-500/50 appearance-none"
                   >
                     <option value="All">সব দেশ</option>
                     <option value="<1M">১ মিলিয়নের নিচে</option>
@@ -521,11 +512,11 @@ export default function App() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-[var(--text-main)]">অঞ্চল (Region)</label>
+                  <label className="block text-sm font-semibold mb-2 text-gray-300">অঞ্চল (Region)</label>
                   <select 
                     value={regionFilter} 
                     onChange={(e) => setRegionFilter(e.target.value)}
-                    className="w-full p-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-[var(--text-main)] outline-none focus:border-[var(--primary)]"
+                    className="w-full p-3 rounded-xl border border-white/10 bg-[#030712] text-white outline-none focus:border-blue-500/50 appearance-none"
                   >
                     <option value="All">সব অঞ্চল</option>
                     <option value="Asia">এশিয়া (Asia)</option>
@@ -537,13 +528,13 @@ export default function App() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-[var(--text-main)]">ভাষা (Language) <span className="text-[10px] text-[var(--text-muted)] font-normal">(ইংরেজিতে লিখুন)</span></label>
+                  <label className="block text-sm font-semibold mb-2 text-gray-300">ভাষা (Language) <span className="text-[10px] text-gray-500 font-normal">(ইংরেজিতে লিখুন)</span></label>
                   <input 
                     type="text" 
                     value={languageFilter} 
                     onChange={(e) => setLanguageFilter(e.target.value)}
                     placeholder="যেমন: English, Arabic, Spanish..."
-                    className="w-full p-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-[var(--text-main)] outline-none focus:border-[var(--primary)]"
+                    className="w-full p-3 rounded-xl border border-white/10 bg-[#030712] text-white outline-none focus:border-blue-500/50"
                   />
                 </div>
 
@@ -554,13 +545,13 @@ export default function App() {
                       setRegionFilter('All');
                       setLanguageFilter('');
                     }}
-                    className="flex-1 py-2.5 rounded-lg border border-[var(--border)] hover:bg-[var(--hover-bg)] font-semibold transition-colors"
+                    className="flex-1 py-3 rounded-xl border border-white/10 text-gray-300 hover:text-white hover:bg-white/5 font-semibold transition-colors"
                   >
                     রিসেট
                   </button>
                   <button 
                     onClick={() => setIsFilterModalOpen(false)}
-                    className="flex-1 py-2.5 rounded-lg bg-[var(--primary)] text-white hover:opacity-90 font-semibold transition-opacity"
+                    className="flex-1 py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-semibold transition-colors shadow-lg shadow-blue-500/20"
                   >
                     এপ্লাই করুন
                   </button>
@@ -572,185 +563,161 @@ export default function App() {
       </AnimatePresence>
 
       {isExamMode ? (
-        <main className="flex-1 p-6 md:p-10 max-w-[1400px] mx-auto w-full">
+        <main className="flex-1 p-6 md:p-10 max-w-[1400px] mx-auto w-full pt-20">
           <QuizSection onExit={() => setIsExamMode(false)} />
         </main>
       ) : (
-        <main className="flex-1 p-6 md:p-10 grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8 md:gap-10 max-w-[1400px] mx-auto w-full">
-          <aside className="flex flex-col gap-6">
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-[11px] uppercase text-[var(--text-muted)] font-semibold">মহাদেশসমূহ</h3>
-              <button 
-                onClick={() => setIsFilterModalOpen(true)} 
-                className="flex items-center gap-1.5 text-xs font-bold text-[var(--primary)] hover:underline opacity-80 hover:opacity-100 transition-opacity"
-              >
-                <Filter size={14} /> অ্যাডভান্সড ফিল্টার
-              </button>
-            </div>
-            
-            <ul className="flex flex-row lg:flex-col gap-2 lg:gap-0 overflow-x-auto pb-2 lg:pb-0 hide-scrollbar snap-x">
-              {filterOptions.map(option => {
-                const isActive = selectedContinent === option;
-                const count = option === 'All' ? countries.length : countries.filter(c => c.continent === option).length;
-                const label = option === 'All' ? '🌍 সব দেশ' : 
-                              option === 'এশিয়া' ? '🌏 এশিয়া' :
-                              option === 'ইউরোপ' ? '🌍 ইউরোপ' :
-                              option === 'আফ্রিকা' ? '🌍 আফ্রিকা' :
-                              option === 'উত্তর আমেরিকা' ? '🌎 উঃ আমেরিকা' : 
-                              option === 'দক্ষিণ আমেরিকা' ? '🌎 দঃ আমেরিকা' : '🌊 ওশেনিয়া';
-                return (
-                  <li key={option} className="snap-start shrink-0">
-                    <button
-                      onClick={() => setSelectedContinent(option)}
-                      className={`w-full text-left px-4 py-3 rounded-lg flex justify-between items-center text-sm font-medium transition-colors border lg:border-none whitespace-nowrap lg:whitespace-normal gap-3 ${
-                        isActive 
-                          ? 'bg-[var(--primary)] text-white border-[var(--primary)]' 
-                          : 'bg-[var(--surface)] text-[var(--text-main)] border-[var(--border)] hover:bg-[var(--hover-bg)]'
-                      } lg:mb-1`}
-                    >
-                      <span>{label}</span>
-                      <span className={`text-[11px] px-2 py-0.5 rounded-full ${isActive ? 'bg-black/20 text-white' : 'bg-black/5 dark:bg-white/10 text-[var(--text-muted)]'}`}>
-                        {count}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </aside>
-
-        <section className="flex flex-col gap-6 min-w-0">
+        <main className="max-w-7xl mx-auto px-4 pt-28 pb-12 w-full flex-1 flex flex-col">
           
-          {/* Quick Data Points & Actions Grid (Desktop Only) */}
-          <div className="hidden md:grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4 mb-2">
-            <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
-              <span className="block text-2xl mb-1">🌍</span>
-              <strong className="block text-xl text-[var(--primary)] mb-1">১৯৬ টি</strong>
-              <span className="block text-xs font-semibold text-[var(--text-main)]">মোট দেশ</span>
-            </div>
-            
-            <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
-              <span className="block text-2xl mb-1">👥</span>
-              <strong className="block text-xl text-[var(--primary)] mb-1">৮.১ বিলিয়ন+</strong>
-              <span className="block text-xs font-semibold text-[var(--text-main)]">বিশ্বের জনসংখ্যা</span>
-            </div>
-
-            <button onClick={() => setShowCurrency(true)} className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
-              <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">💱</span>
-              <strong className="block text-lg md:text-xl text-green-500 mb-1">লাইভ রেট</strong>
-              <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">কারেন্সি কনভার্টার</span>
-            </button>
-
-            <button onClick={() => setShowCurrency(true)} className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
-              <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">📈</span>
-              <strong className="block text-lg md:text-xl text-blue-500 mb-1">AI অ্যানালাইসিস</strong>
-              <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">মার্কেট ইনসাইটস</span>
-            </button>
-
-            <button onClick={() => setIsExamMode(true)} className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
-              <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">📝</span>
-              <strong className="block text-lg md:text-xl text-red-500 mb-1">প্রস্তুতি নিন</strong>
-              <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">MCQ কুইজ</span>
-            </button>
-
-            <button onClick={() => window.dispatchEvent(new CustomEvent('open-ai-chat'))} className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95">
-              <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">🤖</span>
-              <strong className="block text-lg md:text-xl text-purple-500 mb-1">AI গাইড</strong>
-              <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">স্মার্ট চ্যাটবট</span>
-            </button>
-
-            <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
-              <span className="block text-2xl mb-1">🗣️</span>
-              <strong className="block text-xl text-[var(--primary)] mb-1">৭১০০+</strong>
-              <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">জীবিত ভাষা</span>
-            </div>
-
-            <WorldRecords />
+          {/* হিরো সেকশন */}
+          <div className="text-center md:text-left mb-10">
+            <h2 className="text-4xl md:text-6xl font-black mb-4 leading-tight">
+              বিশ্বকে জানুন <span className="text-blue-500">সহজভাবে</span>
+            </h2>
+            <p className="text-gray-400 text-sm md:text-lg max-w-2xl mx-auto md:mx-0">
+              ১৯৬টি দেশের সম্পূর্ণ তথ্যভাণ্ডার এবং ইন্টারঅ্যাক্টিভ ৩ডি ম্যাপ। 
+              একজন স্টুডেন্ট-এর প্রয়োজনীয় সবকিছু এখন এক জায়গায়।
+            </p>
           </div>
 
-          <div className="flex flex-col gap-4 mb-2">
-            <h2 className="text-center text-[var(--primary)] text-xl font-bold">ঘুরিয়ে দেখুন আমাদের পৃথিবী</h2>
+          {/* ৩ডি গ্লোব কন্টেইনার */}
+          <div className="relative w-full h-[55vh] md:h-[65vh] rounded-[40px] overflow-hidden shadow-2xl flex items-center justify-center group mb-12 border border-white/5 bg-[#030712] touch-pan-y">
+             {/* Subtle gradient overlay to blend corners */}
+             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(3,7,18,0.8)_100%)] pointer-events-none z-0" />
             <GlobeViz focusCountryCode={globeFocusCode} />
+            
+            {/* মোবাইল সার্চ বার */}
+            <div className="absolute bottom-6 px-4 w-full lg:hidden z-10 pointer-events-none">
+               <div className="relative max-w-sm mx-auto pointer-events-auto">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <input 
+                    type="text" 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="দেশ বা রাজধানী খুঁজুন..." 
+                    className="w-full bg-[#0a0a12]/95 backdrop-blur-xl border border-white/10 rounded-full pl-12 pr-6 py-4 text-sm outline-none shadow-2xl focus:border-blue-500/50 text-white placeholder-gray-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium"
+                  />
+               </div>
+            </div>
           </div>
 
-          <div className="flex flex-row overflow-x-auto snap-x hide-scrollbar gap-4 md:grid md:grid-cols-3 xl:grid-cols-4 md:overflow-visible">
-            {continents.map((cont, idx) => (
-              <div key={idx} className="shrink-0 w-[160px] md:w-auto snap-start bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)] transition-colors duration-300">
-                <span className="block text-xs text-[var(--text-muted)] mb-1">{cont.location}</span>
-                <strong className="block text-2xl text-[var(--primary)] mb-1">{cont.count.replace('টি দেশ', '').replace('কোনো দেশ নেই', '০')}</strong>
-                <span className="block text-sm font-medium text-[var(--text-main)]">{cont.icon} {cont.name}</span>
-              </div>
-            ))}
+          <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <h3 className="text-xl font-bold tracking-tight">সব দেশ</h3>
+            <button 
+              onClick={() => setIsFilterModalOpen(true)} 
+              className="flex items-center gap-2 text-xs font-bold text-blue-400 hover:text-blue-300 bg-blue-500/10 px-5 py-2.5 rounded-full border border-blue-500/20 transition-all active:scale-95 shadow-sm"
+            >
+              <Filter size={14} /> অ্যাডভান্সড ফিল্টার
+            </button>
           </div>
 
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl overflow-hidden flex-1 flex flex-col transition-colors duration-300">
-            {/* Desktop View (Table) */}
-            <div className="w-full">
-              <table className="w-full border-collapse text-left">
-                <thead>
-                  <tr>
-                    <th className="bg-[var(--bg)] p-3 md:p-4 text-[11px] md:text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold">মহাদেশ</th>
-                    <th className="bg-[var(--bg)] p-3 md:p-4 text-[11px] md:text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold">পতাকা ও দেশ</th>
-                    <th className="bg-[var(--bg)] p-3 md:p-4 text-[11px] md:text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold">রাজধানী</th>
-                    <th className="bg-[var(--bg)] p-3 md:p-4 text-[11px] md:text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)] font-semibold">প্রতিবেশী দেশ</th>
-                  </tr>
-                </thead>
-                <tbody>
+          <div className="flex gap-3 overflow-x-auto pb-4 mb-6 hide-scrollbar snap-x">
+            {filterOptions.map(option => {
+              const isActive = selectedContinent === option;
+              const count = option === 'All' ? countries.length : countries.filter(c => c.continent === option).length;
+              const label = option === 'All' ? 'সব দেশ' : option;
+              return (
+                <button
+                  key={option}
+                  onClick={() => setSelectedContinent(option)}
+                  className={`snap-start shrink-0 px-6 py-3 rounded-2xl flex items-center gap-3 text-sm font-bold transition-all border ${
+                    isActive 
+                      ? 'bg-blue-600 text-white border-blue-500 shadow-xl shadow-blue-500/20' 
+                      : 'bg-[#030712] text-gray-400 border-white/10 hover:bg-white/5 hover:border-white/20 hover:text-gray-200'
+                  }`}
+                >
+                  <span>{label}</span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-lg ${isActive ? 'bg-black/20 text-white font-black' : 'bg-white/5 text-gray-500 border border-white/5'}`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="bg-[#0a0a12] border border-white/10 rounded-3xl overflow-hidden flex-1 flex flex-col mb-12 max-h-[600px] shadow-2xl relative">
+            
+            {filteredCountries.length > 0 && (
+              <div className="absolute top-0 left-0 w-full h-[150px] bg-gradient-to-b from-[#0a0a12] to-transparent pointer-events-none z-[15]" />
+            )}
+            
+            <div className="overflow-y-auto w-full hide-scrollbar z-0 relative px-2">
+              <div className="w-full flex object-cover flex-col text-left py-6 pb-20 relative z-10 space-y-3">
                   {filteredCountries.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="p-8 text-center text-[var(--text-muted)]">
+                      <div className="p-10 text-center text-gray-500 font-medium w-full block">
                         কোনো দেশ পাওয়া যায়নি!
-                      </td>
-                    </tr>
+                      </div>
                   ) : (
                     filteredCountries.map((country, idx) => (
-                      <tr 
+                      <div 
                         key={idx} 
                         onClick={() => fetchCountryDetails(country.code, country.country)}
-                        className="hover:bg-[var(--hover-bg)] transition-colors duration-150 cursor-pointer"
+                        className="hover:bg-white/5 transition-all cursor-pointer group mx-2 bg-[#030712] border border-white/5 rounded-2xl hover:border-blue-500/30 hover:shadow-lg grid grid-cols-2 sm:grid-cols-[1fr_2fr_1fr] lg:grid-cols-[1fr_2fr_1fr_1fr] items-center gap-4 p-5"
                       >
-                        <td className="p-3 md:p-4 text-xs md:text-sm border-b border-[var(--border)] text-[var(--text-muted)] align-top">{country.continent}</td>
-                        <td className="p-3 md:p-4 text-xs md:text-sm border-b border-[var(--border)] align-top">
-                          <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                        <div className="text-sm text-gray-400 align-middle hidden sm:block">
+                          <span className="bg-white/5 px-4 py-2 rounded-xl text-xs border border-white/5 font-bold text-gray-400 group-hover:bg-blue-500/10 group-hover:text-blue-400 group-hover:border-blue-500/20 transition-colors">
+                            {country.continent}
+                          </span>
+                        </div>
+                        <div className="align-middle flex items-center gap-4 col-span-2 sm:col-span-1">
+                          <div className="relative shrink-0">
                             <img 
                               src={`https://flagcdn.com/w40/${country.code}.png`} 
-                              className="w-5 h-auto md:w-6 md:h-4 object-cover rounded-[2px] bg-[#cbd5e1] shadow-sm" 
+                              className="w-10 h-7 object-cover rounded shadow-sm border border-white/10 group-hover:scale-110 transition-transform relative z-10" 
                               alt={`${country.country} Flag`}
                               referrerPolicy="no-referrer"
                             />
-                            <span className="font-semibold text-[var(--text-main)] break-words">{country.country}</span>
                           </div>
-                        </td>
-                        <td className="p-3 md:p-4 text-xs md:text-sm border-b border-[var(--border)] text-[var(--text-main)] align-top break-words">{country.capital}</td>
-                        <td className="p-3 md:p-4 text-xs md:text-sm border-b border-[var(--border)] text-[var(--text-muted)] align-top break-words max-w-[200px] leading-relaxed">{country.neighbors}</td>
-                      </tr>
+                          <span className="font-bold text-gray-200 group-hover:text-blue-400 transition-colors text-lg truncate">{country.country}</span>
+                        </div>
+                        <div className="text-sm text-gray-400 align-middle font-semibold group-hover:text-gray-200 transition-colors truncate">{country.capital}</div>
+                        <div className="text-xs text-gray-500 align-middle hidden lg:block leading-relaxed line-clamp-2">{country.neighbors}</div>
+                      </div>
                     ))
                   )}
-                </tbody>
-              </table>
+              </div>
             </div>
+            
+            {filteredCountries.length > 0 && (
+              <div className="absolute bottom-0 left-0 w-full h-[60px] bg-gradient-to-t from-[#0a0a12] to-transparent pointer-events-none z-10" />
+            )}
           </div>
-        </section>
-      </main>
+          
+          {/* মহাদেশের সারাংশ */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-auto">
+            {continents.map((cont, idx) => (
+              <div key={idx} className="bg-[#0a0a12] p-6 rounded-3xl border border-white/5 hover:border-blue-500/30 hover:bg-white/5 transition-all duration-300 group shadow-lg flex flex-col justify-between items-start h-full">
+                <span className="inline-block px-3 py-1 bg-white/5 text-[10px] text-gray-400 uppercase font-black tracking-widest rounded-full mb-4 border border-white/5 group-hover:bg-blue-500/10 group-hover:text-blue-400 group-hover:border-blue-500/20 transition-colors">{cont.location}</span>
+                <div>
+                    <strong className="block text-4xl font-black text-white mb-1 group-hover:text-blue-400 transition-colors">{cont.count.replace('টি দেশ', '').replace('কোনো দেশ নেই', '০')}</strong>
+                    <span className="block text-sm font-bold text-gray-500">{cont.name}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </main>
       )}
 
       {/* Country Details Modal */}
+      <AnimatePresence>
       {selectedCountryCode && (
         <div 
-          className="fixed inset-0 bg-black/40 dark:bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity"
           onClick={() => setSelectedCountryCode(null)}
         >
-          <div 
-            className="bg-[var(--surface)] rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-[var(--border)] transform transition-all"
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="bg-[#0a0a12] rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-white/10"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center p-5 border-b border-[var(--border)] bg-[var(--bg)]">
-              <h2 className="text-lg font-bold text-[var(--text-main)]">দেশের বিস্তারিত তথ্য</h2>
+            <div className="flex justify-between items-center p-5 border-b border-white/5 bg-white/5">
+              <h2 className="text-lg font-bold text-white">দেশের বিস্তারিত তথ্য</h2>
               <button 
                 onClick={() => setSelectedCountryCode(null)} 
-                className="text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--border)] p-1.5 rounded-full transition-colors"
+                className="text-gray-400 hover:text-white hover:bg-white/10 p-1.5 rounded-full transition-colors"
               >
                 <X size={20} />
               </button>
@@ -759,8 +726,8 @@ export default function App() {
             <div className="p-6">
               {isLoadingDetails ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-4">
-                  <Loader2 className="animate-spin text-[var(--primary)]" size={36} />
-                  <p className="text-sm text-[var(--text-muted)]">তথ্য লোড হচ্ছে...</p>
+                  <Loader2 className="animate-spin text-blue-500" size={36} />
+                  <p className="text-sm text-gray-400">তথ্য লোড হচ্ছে...</p>
                 </div>
               ) : countryDetails ? (
                 <div className="flex flex-col gap-6">
@@ -768,58 +735,65 @@ export default function App() {
                     <img 
                       src={countryDetails.flagUrl} 
                       alt="Flag" 
-                      className="w-24 h-auto rounded shadow-sm border border-[var(--border)] object-cover" 
+                      className="w-24 h-auto rounded shadow-sm border border-white/10 object-cover" 
                     />
                     <div>
-                      <h3 className="text-2xl font-bold text-[var(--text-main)] mb-1">{countryDetails.name}</h3>
-                      <p className="text-sm text-[var(--text-muted)] font-medium">{countryDetails.officialName}</p>
+                      <h3 className="text-2xl font-bold text-white mb-1">{countryDetails.name}</h3>
+                      <p className="text-sm text-gray-400 font-medium">{countryDetails.officialName}</p>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] col-span-2">
-                      <span className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] mb-2 uppercase font-semibold">
-                        <MapPin size={14} className="text-[var(--primary)]" />
+                    <div className="bg-[#030712] p-4 rounded-xl border border-white/10 col-span-2">
+                      <span className="flex items-center gap-1.5 text-xs text-gray-500 mb-2 uppercase font-bold tracking-widest">
+                        <MapPin size={14} className="text-blue-500" />
                         ভৌগোলিক তথ্য (Google Maps)
                       </span>
                       {isLoadingSummary ? (
-                        <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+                        <div className="flex items-center gap-2 text-sm text-gray-400">
                           <Loader2 className="animate-spin" size={14} />
                           তথ্য সংগ্রহ করা হচ্ছে...
                         </div>
                       ) : (
-                        <p className="text-[var(--text-main)] text-sm leading-relaxed">
+                        <p className="text-gray-300 text-sm leading-relaxed">
                           {countrySummary}
                         </p>
                       )}
                     </div>
-                    <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)]">
-                      <span className="block text-xs text-[var(--text-muted)] mb-1 uppercase font-semibold">জনসংখ্যা</span>
-                      <strong className="text-[var(--text-main)] text-lg">{countryDetails.population.toLocaleString()}</strong>
+                    <div className="bg-[#030712] p-4 rounded-xl border border-white/10">
+                      <span className="block text-[10px] text-gray-500 mb-1 uppercase font-bold tracking-widest">জনসংখ্যা</span>
+                      <strong className="text-white text-lg">{countryDetails.population.toLocaleString()}</strong>
                     </div>
-                    <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)]">
-                      <span className="block text-xs text-[var(--text-muted)] mb-1 uppercase font-semibold">মুদ্রা (Currency)</span>
-                      <strong className="text-[var(--text-main)] text-sm">{countryDetails.currencies}</strong>
+                    <div className="bg-[#030712] p-4 rounded-xl border border-white/10">
+                      <span className="block text-[10px] text-gray-500 mb-1 uppercase font-bold tracking-widest">মুদ্রা (Currency)</span>
+                      <strong className="text-white text-sm">{countryDetails.currencies}</strong>
                     </div>
-                    <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] col-span-2">
-                      <span className="block text-xs text-[var(--text-muted)] mb-1 uppercase font-semibold">সরকারি ভাষা</span>
-                      <strong className="text-[var(--text-main)] text-sm">{countryDetails.languages}</strong>
+                    <div className="bg-[#030712] p-4 rounded-xl border border-white/10 col-span-2">
+                      <span className="block text-[10px] text-gray-500 mb-1 uppercase font-bold tracking-widest">সরকারি ভাষা</span>
+                      <strong className="text-white text-sm">{countryDetails.languages}</strong>
                     </div>
-                    <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--border)] col-span-2">
-                      <span className="block text-xs text-[var(--text-muted)] mb-1 uppercase font-semibold">অঞ্চল (Region)</span>
-                      <strong className="text-[var(--text-main)] text-sm">{countryDetails.region} {countryDetails.subregion ? `(${countryDetails.subregion})` : ''}</strong>
+                    <div className="bg-[#030712] p-4 rounded-xl border border-white/10 col-span-2">
+                      <span className="block text-[10px] text-gray-500 mb-1 uppercase font-bold tracking-widest">অঞ্চল (Region)</span>
+                      <strong className="text-white text-sm">{countryDetails.region} {countryDetails.subregion ? `(${countryDetails.subregion})` : ''}</strong>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-10 text-[var(--text-muted)]">
+                <div className="text-center py-10 text-gray-500">
                   তথ্য পাওয়া যায়নি।
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
+
+      <footer className="text-center py-10 border-t border-white/5 mt-auto">
+        <p className="text-[10px] text-gray-600 font-black tracking-[0.4em] uppercase">
+          Developed by Yeasin | © 2026 Yeasin Earth
+        </p>
+      </footer>
       
       {/* Currency Converter Modal */}
       <AnimatePresence>

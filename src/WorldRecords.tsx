@@ -28,17 +28,15 @@ export default function WorldRecords() {
 
   return (
     <>
-      {/* ১. ড্যাশবোর্ডের গ্রিড কার্ড (আপনার অন্য কার্ডগুলোর মত ডিজাইন) */}
       <button 
         onClick={() => setIsOpen(true)}
-        className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] hover:border-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95"
+        className="bg-[#030712] p-4 rounded-2xl border border-white/10 hover:border-yellow-500/50 hover:bg-white/5 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95 h-full w-full"
       >
-        <div style={{ fontSize: "32px", marginBottom: "4px" }} className="group-hover:scale-110 transition-transform">🏆</div>
-        <strong className="block text-lg md:text-xl text-yellow-500 mb-1">বিশ্ব রেকর্ড</strong>
-        <span className="block text-[10px] md:text-xs font-semibold text-[var(--text-main)]">বড়-ছোট দেশের তালিকা</span>
+        <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">🏆</span>
+        <strong className="block text-xl text-yellow-500 mb-1 font-black">বিশ্ব রেকর্ড</strong>
+        <span className="block text-xs font-semibold text-gray-400">বড়-ছোট দেশের তালিকা</span>
       </button>
 
-      {/* ২. পপ-আপ (Modal) */}
       {isOpen && (
         <div style={{
           position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
@@ -46,45 +44,43 @@ export default function WorldRecords() {
           display: "flex", justifyContent: "center", alignItems: "center", zIndex: 9999
         }}>
           <div style={{
-            background: "#1e293b", width: "90%", maxWidth: "700px", borderRadius: "16px",
-            border: "1px solid #334155", overflow: "hidden", boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
-            animation: "fadeIn 0.2s ease-out"
+            background: "#0a0a12", width: "95%", maxWidth: "800px", borderRadius: "24px",
+            border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden", boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
+            animation: "fadeIn 0.2s ease-out", display: "flex", flexDirection: "column", maxHeight: "90vh"
           }}>
             
-            {/* Modal Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #334155" }}>
-              <h2 style={{ color: "white", margin: 0, fontSize: "22px", display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>🏆</span> পৃথিবীর শীর্ষ ১০০ দেশ
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "24px", borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.02)" }}>
+              <h2 style={{ color: "white", margin: 0, fontSize: "24px", display: 'flex', alignItems: 'center', gap: '12px', fontWeight: "bold" }}>
+                <span style={{ fontSize: "28px" }}>🏆</span> পৃথিবীর শীর্ষ ১০০ দেশ
               </h2>
               <button 
                 onClick={() => setIsOpen(false)}
-                style={{ background: "transparent", border: "none", color: "#ef4444", fontSize: "20px", cursor: "pointer", fontWeight: "bold" }}
+                className="text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-full transition-colors flex items-center justify-center cursor-pointer"
+                style={{ border: "none" }}
               >
-                ✖
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
             </div>
 
-            {/* Modal Tabs */}
-            <div style={{ display: "flex", overflowX: "auto", background: "#0f172a", padding: "10px", gap: "8px" }}>
+            <div style={{ display: "flex", overflowX: "auto", background: "#030712", padding: "16px 24px", gap: "12px", borderBottom: "1px solid rgba(255,255,255,0.05)" }} className="hide-scrollbar">
               <button onClick={() => setActiveTab('areaLarge')} style={tabStyle(activeTab === 'areaLarge', "#38bdf8")}>🌍 আয়তনে বড়</button>
               <button onClick={() => setActiveTab('areaSmall')} style={tabStyle(activeTab === 'areaSmall', "#facc15")}>🏝️ আয়তনে ছোট</button>
               <button onClick={() => setActiveTab('popHigh')} style={tabStyle(activeTab === 'popHigh', "#f87171")}>👥 জনসংখ্যায় বেশি</button>
               <button onClick={() => setActiveTab('popLow')} style={tabStyle(activeTab === 'popLow', "#a78bfa")}>👤 জনসংখ্যায় কম</button>
             </div>
 
-            {/* List Content Area */}
-            <div style={{ padding: "20px", maxHeight: "60vh", overflowY: "auto" }} className="scroll-smooth">
-              <h3 style={{ color: currentList.color, textAlign: "center", marginBottom: "20px", fontSize: "1.2rem", fontWeight: "bold" }}>{currentList.title}</h3>
+            <div style={{ padding: "32px", overflowY: "auto", flex: 1 }} className="scroll-smooth bg-[#0a0a12]">
+              <h3 style={{ color: currentList.color, textAlign: "center", marginBottom: "32px", fontSize: "1.5rem", fontWeight: "900" }}>{currentList.title}</h3>
               
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "16px" }}>
                 {currentList.data.map((country, index) => (
                   <div key={index} style={{
-                    background: "#0f172a", padding: "12px 15px", borderRadius: "8px", 
-                    borderLeft: `4px solid ${currentList.color}`, color: "#e2e8f0",
-                    display: "flex", gap: "10px", alignItems: "center", fontSize: "15px"
-                  }}>
-                    <span style={{ fontWeight: "bold", color: currentList.color, minWidth: "30px" }}>{index + 1}.</span>
-                    <span>{country}</span>
+                    background: "#030712", padding: "16px 20px", borderRadius: "16px", 
+                    color: "#e2e8f0", display: "flex", gap: "12px", alignItems: "center", fontSize: "16px",
+                    border: "1px solid rgba(255,255,255,0.05)", borderLeft: `6px solid ${currentList.color}`
+                  }} className="hover:bg-white/5 transition-all hover:scale-[1.02] cursor-pointer shadow-sm">
+                    <span style={{ fontWeight: "900", color: currentList.color, minWidth: "36px", fontSize: "18px", opacity: 0.8 }}>{index + 1}.</span>
+                    <span style={{ fontWeight: "700" }}>{country}</span>
                   </div>
                 ))}
               </div>
@@ -97,17 +93,16 @@ export default function WorldRecords() {
   );
 }
 
-// ট্যাবের ডিজাইনের জন্য ফাংশন
 const tabStyle = (isActive: boolean, color: string) => ({
-  padding: "10px 15px",
+  padding: "12px 20px",
   margin: "0",
   background: isActive ? color : "transparent",
-  color: isActive ? "#000" : "#94a3b8",
-  border: `1px solid ${isActive ? color : "#334155"}`,
-  borderRadius: "20px",
+  color: isActive ? "#030712" : "#9ca3af",
+  border: `1px solid ${isActive ? color : "rgba(255,255,255,0.1)"}`,
+  borderRadius: "12px",
   cursor: "pointer",
   fontWeight: "bold",
-  fontSize: "14px",
+  fontSize: "15px",
   whiteSpace: "nowrap" as const,
-  transition: "all 0.3s ease"
+  transition: "all 0.2s ease"
 });

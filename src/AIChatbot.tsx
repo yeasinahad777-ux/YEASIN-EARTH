@@ -87,53 +87,56 @@ export default function AIChatbot() {
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/40 dark:bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity"
-          onClick={() => setIsOpen(false)}
-        >
+    <>
+      <button
+        onClick={() => setIsOpen(true)}
+        className={`fixed bottom-6 right-6 lg:bottom-10 lg:right-10 p-4 bg-blue-600 text-white rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all z-50 ${isOpen ? 'hidden' : 'block'}`}
+      >
+        <MessageSquare size={28} />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-2xl h-[80vh] sm:h-[600px] bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative"
+            className="fixed bottom-6 right-6 lg:bottom-10 lg:right-10 w-[90vw] sm:w-[400px] h-[600px] max-h-[85vh] bg-[#0a0a12] rounded-3xl shadow-2xl z-50 flex flex-col overflow-hidden border border-white/10 backdrop-blur-xl"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-700 p-4 sm:p-5 flex justify-between items-center text-white shrink-0">
+            <div className="p-5 bg-white/5 border-b border-white/5 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                <div className="p-2 bg-blue-600 rounded-xl shadow-lg shadow-blue-500/20">
                   <Bot size={24} className="text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg sm:text-xl">Earth AI গাইড</h3>
-                  <p className="text-sm text-purple-200">স্মার্ট চ্যাটবট ও Q&A</p>
+                  <h3 className="font-bold text-lg text-white leading-tight">EarthBot AI</h3>
+                  <p className="text-xs text-blue-400 font-semibold tracking-wide uppercase">Smart Guide</p>
                 </div>
               </div>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-white/20 rounded-full transition-colors self-start"
+                className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-[var(--bg)]">
+            <div className="flex-1 overflow-y-auto p-4 md:p-5 space-y-6 hide-scrollbar flex flex-col">
               {messages.map((msg) => (
-                <div key={msg.id} className={`flex gap-3 sm:gap-4 max-w-[90%] sm:max-w-[80%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
-                  <div className={`p-2 sm:p-2.5 rounded-full h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center shrink-0 shadow-sm ${msg.role === 'user' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' : 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300'}`}>
-                    {msg.role === 'user' ? <User size={20} /> : <Bot size={24} />}
+                <div key={msg.id} className={`flex gap-3 max-w-[90%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
+                  <div className={`p-2 rounded-xl h-10 w-10 flex items-center justify-center shrink-0 shadow-sm ${msg.role === 'user' ? 'bg-blue-600/20 text-blue-400' : 'bg-white/5 border border-white/10 text-gray-300'}`}>
+                    {msg.role === 'user' ? <User size={20} /> : <Bot size={20} />}
                   </div>
-                  <div className={`p-4 sm:p-5 rounded-2xl text-sm sm:text-base leading-relaxed shadow-sm ${
+                  <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
                     msg.role === 'user' 
-                      ? 'bg-indigo-500 text-white rounded-tr-none' 
-                      : 'bg-[var(--surface)] border border-[var(--border)] text-[var(--text-main)] rounded-tl-none'
+                      ? 'bg-blue-600 text-white rounded-tr-none' 
+                      : 'bg-[#030712] border border-white/10 text-gray-200 rounded-tl-none font-medium'
                   }`}>
                     {msg.role === 'model' ? (
-                      <div className="markdown-body prose-sm sm:prose-base prose-p:leading-tight prose-a:text-purple-500 dark:text-gray-100">
+                      <div className="markdown-body prose-sm prose-p:leading-relaxed prose-a:text-blue-400">
                         <Markdown>{msg.content}</Markdown>
                       </div>
                     ) : (
@@ -143,43 +146,43 @@ export default function AIChatbot() {
                 </div>
               ))}
               {isLoading && (
-                <div className="flex gap-3 sm:gap-4 max-w-[80%]">
-                  <div className="p-2.5 rounded-full h-12 w-12 flex items-center justify-center shrink-0 shadow-sm bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">
-                    <Bot size={24} />
+                <div className="flex gap-3 max-w-[80%]">
+                  <div className="p-2 rounded-xl h-10 w-10 flex items-center justify-center shrink-0 shadow-sm bg-white/5 border border-white/10 text-gray-300">
+                    <Bot size={20} />
                   </div>
-                  <div className="p-5 rounded-2xl bg-[var(--surface)] border border-[var(--border)] text-purple-500 rounded-tl-none flex items-center gap-3 shadow-sm">
-                    <Loader2 size={20} className="animate-spin" /> <span className="font-medium">উত্তর তৈরি হচ্ছে...</span>
+                  <div className="p-4 rounded-2xl bg-[#030712] border border-white/10 text-blue-400 rounded-tl-none flex items-center gap-3 font-semibold text-sm">
+                    <Loader2 size={18} className="animate-spin" /> Thinking...
                   </div>
                 </div>
               )}
-              <div ref={messagesEndRef} />
+              <div ref={messagesEndRef} className="pt-2" />
             </div>
 
             {/* Input Area */}
-            <div className="p-4 sm:p-5 bg-[var(--surface)] border-t border-[var(--border)] shrink-0">
+            <div className="p-3 md:p-4 bg-white/5 border-t border-white/5 shrink-0">
               <form 
                 onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-                className="flex items-center gap-3 relative max-w-4xl mx-auto"
+                className="flex items-center gap-2 relative"
               >
                 <input 
                   type="text" 
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="আপনার প্রশ্ন জিজ্ঞাসা করুন (যেমন: বাংলাদেশের আয়তন কত?)"
-                  className="flex-1 bg-[var(--hover-bg)] border border-[var(--border)] text-[var(--text-main)] px-5 py-4 rounded-full text-sm sm:text-base outline-none focus:border-purple-500 pr-14 transition-all shadow-sm"
+                  placeholder="আমাকে যেকোনো কিছু জিজ্ঞেস করুন..."
+                  className="w-full bg-[#030712]/50 border border-white/10 rounded-full py-4 px-6 text-sm text-white placeholder:text-gray-500 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium pr-[60px]"
                 />
                 <button 
                   type="submit"
                   disabled={!input.trim() || isLoading}
-                  className="absolute right-2 top-2 bottom-2 aspect-square bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-full flex items-center justify-center transition-all shadow-md active:scale-95"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-blue-600 hover:bg-blue-700 disabled:bg-white/5 disabled:text-gray-500 text-white rounded-full flex items-center justify-center transition-all shadow-md active:scale-95"
                 >
-                  <Send size={20} className="ml-1" />
+                  <Send size={16} className="ml-1" />
                 </button>
               </form>
             </div>
           </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

@@ -247,7 +247,7 @@ export default function CurrencyConverter({ onClose }: CurrencyConverterProps) {
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: `Given the live market today, what is the economic context or trend between the currency ${fromCurrency} and ${toCurrency}? Mention recent factors affecting this exchange rate. Keep it brief and in Bengali. Make it interesting.`,
+        contents: `Given the live market today, what is the economic context or trend between the currency ${fromCurrency} and ${toCurrency}? Mention recent factors affecting this exchange rate. Keep it precisely 2-3 sentences and in Bengali. Make it interesting.`,
         config: {
           tools: [{ googleSearch: {} }],
         }

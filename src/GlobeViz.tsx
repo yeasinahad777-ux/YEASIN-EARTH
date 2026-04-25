@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Globe from 'globe.gl';
 import { countries } from './data';
+import { Lock, Unlock } from 'lucide-react';
 
 interface GlobeVizProps {
   focusCountryCode?: string | null;
@@ -11,6 +12,23 @@ export default function GlobeViz({ focusCountryCode }: GlobeVizProps) {
   const globeInstance = useRef<any>(null);
   const geoDataRef = useRef<any[]>([]);
   const [isLoadingGeo, setIsLoadingGeo] = useState(true);
+  const [isInteractive, setIsInteractive] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setIsInteractive(false);
+      } else {
+        setIsInteractive(true);
+      }
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // ISO ঠিক করার ফাংশন
   const getCorrectISO = (d: any) => {
@@ -67,8 +85,8 @@ export default function GlobeViz({ focusCountryCode }: GlobeVizProps) {
         globe.polygonsData(geoData)
              .polygonAltitude(0.01)
              .polygonCapColor((d: any) => getBaseColor(d))
-             .polygonSideColor(() => 'rgba(0, 0, 0, 0.15)')
-             .polygonStrokeColor(() => '#ffffff')
+             .polygonSideColor(() => 'rgba(0, 0, 0, 0.2)')
+             .polygonStrokeColor(() => 'rgba(255, 255, 255, 0.3)')
              
              // পপ-আপ ইনফরমেশন
              .polygonLabel(({ properties: d }: any) => {
@@ -79,20 +97,20 @@ export default function GlobeViz({ focusCountryCode }: GlobeVizProps) {
                  const continentName = bdData ? bdData.continent : (d.CONTINENT || d.REGION_UN || 'N/A');
                  
                  return `
-                    <div style="background: rgba(15, 23, 42, 0.95); padding: 12px 16px; border-radius: 12px; color: white; font-family: 'Hind Siliguri', sans-serif; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(4px); min-width: 180px;">
+                    <div style="background: rgba(3, 7, 18, 0.95); padding: 12px 16px; border-radius: 16px; color: white; font-family: 'Inter', 'Hind Siliguri', sans-serif; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(8px); min-width: 180px;">
                         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
-                            <img src="https://flagcdn.com/w40/${iso}.png" onerror="this.src='https://flagcdn.com/w40/un.png'" style="width: 32px; height: 22px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                            <span style="font-size: 18px; font-weight: 700; color: #f8fafc; letter-spacing: 0.5px;">${countryName}</span>
+                            <img src="https://flagcdn.com/w40/${iso}.png" onerror="this.src='https://flagcdn.com/w40/un.png'" style="width: 32px; height: 22px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                            <span style="font-size: 16px; font-weight: 800; color: #f8fafc; letter-spacing: 0.5px;">${countryName}</span>
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             ${bdData ? `
-                            <div style="font-size: 14px; color: #cbd5e1; display: flex; align-items: center;">
-                                <span style="color: #94a3b8; font-size: 12px; width: 65px; font-weight: 600;">রাজধানী:</span> 
-                                <span style="font-weight: 600; color: #60a5fa; flex: 1;">${bdData.capital}</span>
+                            <div style="font-size: 13px; color: #cbd5e1; display: flex; align-items: center;">
+                                <span style="color: #94a3b8; font-size: 11px; width: 65px; font-weight: 700; text-transform: uppercase;">রাজধানী:</span> 
+                                <span style="font-weight: 700; color: #60a5fa; flex: 1;">${bdData.capital}</span>
                             </div>` : ''}
-                            <div style="font-size: 14px; color: #cbd5e1; display: flex; align-items: center;">
-                                <span style="color: #94a3b8; font-size: 12px; width: ${bdData ? '65px' : 'auto'}; font-weight: 600; margin-right: ${bdData ? '0' : '8px'};">${bdData ? 'মহাদেশ:' : 'Continent:'}</span> 
-                                <span style="font-weight: 600; color: #34d399; flex: 1;">${continentName}</span>
+                            <div style="font-size: 13px; color: #cbd5e1; display: flex; align-items: center;">
+                                <span style="color: #94a3b8; font-size: 11px; width: ${bdData ? '65px' : 'auto'}; font-weight: 700; margin-right: ${bdData ? '0' : '8px'}; text-transform: uppercase;">${bdData ? 'মহাদেশ:' : 'Continent:'}</span> 
+                                <span style="font-weight: 700; color: #34d399; flex: 1;">${continentName}</span>
                             </div>
                         </div>
                     </div>
@@ -190,11 +208,9 @@ export default function GlobeViz({ focusCountryCode }: GlobeVizProps) {
     const handleResize = () => {
       if (containerRef.current && globeInstance.current) {
         const width = containerRef.current.clientWidth;
-        // make it more square on mobile so it doesn't leave huge gaps, limit max height
-        const height = window.innerWidth <= 768 ? Math.min(width * 0.9, 450) : Math.min(width * 0.6, 500);
+        const height = containerRef.current.clientHeight;
         globeInstance.current.width(width);
         globeInstance.current.height(height);
-        containerRef.current.style.height = `${height}px`; // enforce container height to prevent empty space below
       }
     };
 
@@ -249,15 +265,18 @@ export default function GlobeViz({ focusCountryCode }: GlobeVizProps) {
   }, [focusCountryCode]);
 
   return (
-    <div className="relative w-full rounded-xl overflow-hidden shadow-lg bg-black flex justify-center items-center border border-[var(--border)] transition-all">
+    <div className={`relative w-full rounded-2xl overflow-hidden shadow-lg flex justify-center items-center transition-all bg-transparent touch-pan-y h-full`}>
       {isLoadingGeo && (
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-          <div className="bg-black/60 text-white px-6 py-3 rounded-full backdrop-blur-sm font-medium animate-pulse">
+          <div className="bg-black/60 text-white px-6 py-3 rounded-full backdrop-blur-sm font-medium animate-pulse border border-white/10">
             ম্যাপ লোড হচ্ছে... ⏳
           </div>
         </div>
       )}
-      <div ref={containerRef} className="w-full flex justify-center items-center"></div>
+      <div 
+        ref={containerRef} 
+        className={`w-full flex justify-center items-center h-full pointer-events-auto cursor-grab active:cursor-grabbing hover:cursor-grab`}
+      ></div>
     </div>
   );
 }
