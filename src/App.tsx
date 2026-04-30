@@ -19,6 +19,7 @@ import {
 	CloudSnow,
 	CloudLightning,
 	Thermometer,
+	Globe,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import Markdown from "react-markdown";
@@ -29,6 +30,7 @@ import CurrencyConverter from "./CurrencyConverter";
 import AIChatbot from "./AIChatbot";
 import WorldRecords from "./WorldRecords";
 import LanguageExplorer from "./LanguageExplorer";
+import CurrentAffairsGuide from "./CurrentAffairsGuide";
 
 // Initialize Gemini API only when needed to prevent crashes if key is missing
 let ai: GoogleGenAI | null = null;
@@ -89,6 +91,7 @@ export default function App() {
 	const [showWelcome, setShowWelcome] = useState(false);
 	const [showCurrency, setShowCurrency] = useState(false);
 	const [showLanguageExplorer, setShowLanguageExplorer] = useState(false);
+	const [showCurrentAffairs, setShowCurrentAffairs] = useState(false);
 
 	useEffect(() => {
 		// Show welcome every time the user enters
@@ -218,7 +221,7 @@ export default function App() {
 					const fetchLeaderInfo = async () => {
 						try {
 							const res = await aiClient.models.generateContent({
-								model: "gemini-3-flash-preview",
+								model: "gemini-3.1-pro-preview",
 								contents: `What is the name of the current leader (Head of State or Head of Government, e.g., President or Prime Minister) of ${localName}? Reply in Bengali only with their title followed by their name (e.g., "রাষ্ট্রপতি: মোঃ সাহাবুদ্দিন"). Note: Search the internet to find the most current and accurate data. If there are both, include both separated by a comma. Do not hallucinate.`,
 								config: {
 									tools: [{ googleSearch: {} }],
@@ -226,10 +229,25 @@ export default function App() {
 							});
 							if (res && res.text) {
 								setCountryLeader(res.text.replace(/\*/g, ""));
+							} else {
+								throw new Error("No text returned from Gemini for leader");
 							}
-						} catch (e) {
-							console.error("Failed to fetch leader info", e);
-							setCountryLeader("তথ্য সংগ্রহে সমস্যা হচ্ছে");
+						} catch (e: any) {
+							console.warn("Failed to fetch leader info with search, trying fallback", e);
+							try {
+								const fallbackRes = await aiClient.models.generateContent({
+									model: "gemini-3-flash-preview",
+									contents: `What is the name of the most recent leader (Head of State or Head of Government, e.g., President or Prime Minister) of ${localName} according to your existing knowledge? Reply in Bengali only with their title followed by their name (e.g., "রাষ্ট্রপতি: মোঃ সাহাবুদ্দিন"). If there are both, include both separated by a comma. Do not hallucinate. Keep the response extremely brief.`,
+								});
+								if (fallbackRes && fallbackRes.text) {
+									setCountryLeader(fallbackRes.text.replace(/\*/g, ""));
+								} else {
+									setCountryLeader("তথ্য সংগ্রহে সমস্যা হচ্ছে");
+								}
+							} catch (fallbackErr) {
+								console.error("Fallback to fetch leader info also failed", fallbackErr);
+								setCountryLeader("তথ্য সংগ্রহে সমস্যা হচ্ছে");
+							}
 						} finally {
 							setIsLoadingLeader(false);
 						}
@@ -673,10 +691,28 @@ export default function App() {
 											🤖
 										</span>
 										<strong className="block text-lg text-blue-400 mb-1 font-bold">
+											AI চ্যাটবট
+										</strong>
+										<span className="block text-[10px] md:text-xs font-semibold text-gray-400">
+											যেকোনো প্রশ্ন করুন
+										</span>
+									</button>
+
+									<button
+										onClick={() => {
+											setIsFeaturesMenuOpen(false);
+											setShowCurrentAffairs(true);
+										}}
+										className="bg-[#030712] p-4 rounded-2xl border border-white/10 hover:border-purple-500/50 hover:bg-white/5 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95"
+									>
+										<span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">
+											📰
+										</span>
+										<strong className="block text-lg text-purple-400 mb-1 font-bold">
 											AI গাইড
 										</strong>
 										<span className="block text-[10px] md:text-xs font-semibold text-gray-400">
-											স্মার্ট চ্যাটবট
+											কারেন্ট অ্যাফেয়ার্স
 										</span>
 									</button>
 
@@ -863,10 +899,10 @@ export default function App() {
 								<span className="block text-[10px] md:text-xs font-semibold text-gray-400">MCQ কুইজ</span>
 							</div>
 
-							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:bg-white/5 active:scale-95" onClick={() => window.dispatchEvent(new CustomEvent("open-ai-chat"))}>
-								<span className="block text-2xl mb-1 hover:scale-110 transition-transform">🤖</span>
-								<strong className="block text-lg text-blue-400 mb-1 font-black">AI গাইড</strong>
-								<span className="block text-[10px] md:text-xs font-semibold text-gray-400">স্মার্ট চ্যাটবট</span>
+							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:bg-white/5 active:scale-95" onClick={() => setShowCurrentAffairs(true)}>
+								<span className="block text-2xl mb-1 hover:scale-110 transition-transform">📰</span>
+								<strong className="block text-lg text-purple-400 mb-1 font-black">AI গাইড</strong>
+								<span className="block text-[10px] md:text-xs font-semibold text-gray-400">কারেন্ট অ্যাফেয়ার্স</span>
 							</div>
 
 							<div className="col-span-2 sm:col-span-3 lg:col-span-6 rounded-2xl overflow-hidden border border-white/10">
@@ -964,13 +1000,24 @@ export default function App() {
 												</span>
 											</div>
 											<div className="align-middle flex items-center gap-4 col-span-2 sm:col-span-1 shrink-0 min-w-0">
-												<div className="relative shrink-0">
+												<div className="relative shrink-0 flex items-center gap-2">
 													<img
 														src={`https://flagcdn.com/w40/${country.code}.png`}
 														className="w-10 h-7 object-cover rounded shadow-sm border border-white/10 group-hover:scale-110 transition-transform relative z-10"
 														alt={`${country.country} Flag`}
 														referrerPolicy="no-referrer"
 													/>
+													<button
+														onClick={(e) => {
+															e.stopPropagation();
+															setGlobeFocusCode(country.code);
+															window.scrollTo({ top: 0, behavior: "smooth" });
+														}}
+														className="p-1.5 rounded-full bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 hover:text-blue-300 transition-colors"
+														title="গ্লোবে দেখুন"
+													>
+														<Globe size={16} />
+													</button>
 												</div>
 												<span className="font-bold text-gray-200 group-hover:text-blue-400 transition-colors text-lg truncate flex-1 min-w-0">
 													{country.country}
@@ -1210,6 +1257,12 @@ export default function App() {
 					/>
 				)}
 			</AnimatePresence>
+
+			{/* Current Affairs Guide */}
+			<CurrentAffairsGuide 
+				isOpen={showCurrentAffairs} 
+				onClose={() => setShowCurrentAffairs(false)} 
+			/>
 
 			{/* Persistent Chatbot */}
 			<AIChatbot />
