@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Inter', 'Hind Siliguri', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Hind Siliguri', system-ui, -apple-system, sans-serif;
 }
 
 :root {
@@ -96,4 +96,37 @@ body {
   backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Markdown Styles */
+.markdown-summary h1, .markdown-summary h2, .markdown-summary h3 {
+  font-weight: 700;
+  color: #fff;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+.markdown-summary h1 { font-size: 1.25rem; }
+.markdown-summary h2 { font-size: 1.1rem; }
+.markdown-summary h3 { font-size: 1rem; }
+.markdown-summary p { margin-bottom: 0.75rem; }
+.markdown-summary strong { color: #fff; font-weight: 700; }
+.markdown-summary ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+.markdown-summary ol { list-style-type: decimal; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+.markdown-summary li { margin-bottom: 0.25rem; }
+.markdown-summary a { color: var(--primary); text-decoration: underline; }
+
+/* Custom Scrollbar for Modal */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05); 
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2); 
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3); 
 }
