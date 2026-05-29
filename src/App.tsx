@@ -31,6 +31,7 @@ import AIChatbot from "./AIChatbot";
 import WorldRecords from "./WorldRecords";
 import LanguageExplorer from "./LanguageExplorer";
 import CurrentAffairsGuide from "./CurrentAffairsGuide";
+import SolarSystemExplorer from "./SolarSystemExplorer";
 
 // Initialize Gemini API only when needed to prevent crashes if key is missing
 let ai: GoogleGenAI | null = null;
@@ -92,6 +93,7 @@ export default function App() {
 	const [showCurrency, setShowCurrency] = useState(false);
 	const [showLanguageExplorer, setShowLanguageExplorer] = useState(false);
 	const [showCurrentAffairs, setShowCurrentAffairs] = useState(false);
+	const [showSolarSystem, setShowSolarSystem] = useState(false);
 
 	useEffect(() => {
 		// Show welcome every time the user enters
@@ -219,6 +221,11 @@ export default function App() {
 
 					// Fire off secondary request to fetch current leader
 					const fetchLeaderInfo = async () => {
+						if (code.toLowerCase() === "bd") {
+							setCountryLeader("রাষ্ট্রপতি: মোহাম্মদ সাহাবুদ্দিন, প্রধান উপদেষ্টা: ড. মুহাম্মদ ইউনূস");
+							setIsLoadingLeader(false);
+							return;
+						}
 						try {
 							const res = await aiClient.models.generateContent({
 								model: "gemini-3.1-pro-preview",
@@ -254,6 +261,10 @@ export default function App() {
 					};
 					fetchLeaderInfo();
 
+					const bdInstruction = code.toLowerCase() === "bd"
+						? "\n\nগুরুত্বপূর্ণ মনে রাখুন ও নিশ্চিত করুন: বাংলাদেশে বর্তমান রাষ্ট্রপ্রধান হলেন রাষ্ট্রপতি মোঃ সাহাবুদ্দিন এবং সরকার প্রধান হলেন প্রধান উপদেষ্টা ড. মুহাম্মদ ইউনূস। বর্তমানে কোনো প্রধানমন্ত্রী নেই এবং অন্য কোনো ব্যক্তি (যেমন তারেক রহমান বা অনুরূপ) দেশের ক্ষমতায় বা নেতৃত্বে নেই। কোনো অবস্থাতেই এই তথ্যের বাইরে ভুল বা কাল্পনিক তথ্য জেনারেট করবেন না।"
+						: "";
+
 					let response;
 					try {
 						// First attempt: With Google Search Grounding for best data
@@ -261,7 +272,7 @@ export default function App() {
 							model: "gemini-3-flash-preview",
 							contents: `You are a teacher helping a student learn about ${localName}. Provide a comprehensive summary of ${localName} in Bengali using a question-and-answer (Q&A) format. Please structure your response using Markdown (use bold for questions and clear formatting for answers):
 1. **ভৌগোলিক ও সাধারণ তথ্য (Geography & General Info)**: Formulate 2-3 questions about its capital, key geographical features, and famous landmarks, and answer them.
-2. **সাম্প্রতিক খবর ও সরকার (Recent News & Government)**: Formulate 2-3 questions about its current government type/leaders and use Google Search to answer with 2-3 recent and relevant news updates.
+2. **সাম্প্রতিক খবর ও সরকার (Recent News & Government)**: Formulate 2-3 questions about its current government type/leaders and use Google Search to answer with 2-3 recent and relevant news updates.${bdInstruction}
 3. **ভাষা, সংস্কৃতি ও জীবনযাত্রা (Language, Culture & Lifestyle)**: Formulate 2-3 questions about the primary language, people, and lifestyle, and answer them.`,
 							config: {
 								tools: [{ googleSearch: {} }],
@@ -285,7 +296,7 @@ export default function App() {
 								model: "gemini-3-flash-preview",
 								contents: `You are a teacher helping a student learn about ${localName}. Provide a comprehensive summary of ${localName} in Bengali using a question-and-answer (Q&A) format. Please structure your response using Markdown (use bold for questions and clear formatting for answers):
 1. **ভৌগোলিক ও সাধারণ তথ্য (Geography & General Info)**: Formulate 2-3 questions about its capital, key geographical features, and famous landmarks, and answer them.
-2. **সাম্প্রতিক খবর ও সরকার (Recent News & Government)**: Formulate 2-3 questions about its current government type/leaders and mention a notable historical event, noting that live news could not be fetched.
+2. **সাম্প্রতিক খবর ও সরকার (Recent News & Government)**: Formulate 2-3 questions about its current government type/leaders and mention a notable historical event, noting that live news could not be fetched.${bdInstruction}
 3. **ভাষা, সংস্কৃতি ও জীবনযাত্রা (Language, Culture & Lifestyle)**: Formulate 2-3 questions about the primary language, people, and lifestyle, and answer them.`,
 							});
 						} else {
@@ -703,16 +714,37 @@ export default function App() {
 											setIsFeaturesMenuOpen(false);
 											setShowCurrentAffairs(true);
 										}}
-										className="bg-[#030712] p-4 rounded-2xl border border-white/10 hover:border-purple-500/50 hover:bg-white/5 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95"
+										className="bg-[#030712] p-4 rounded-2xl border border-white/10 hover:border-purple-500/50 hover:bg-white/5 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95 relative overflow-hidden"
 									>
-										<span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">
+										<div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+										<span className="block text-2xl mb-1 group-hover:scale-110 transition-transform relative z-10 min-h-[30px] flex items-center justify-center">
 											📰
 										</span>
-										<strong className="block text-lg text-purple-400 mb-1 font-bold">
+										<strong className="block text-lg text-purple-400 mb-1 font-bold relative z-10">
 											AI গাইড
 										</strong>
-										<span className="block text-[10px] md:text-xs font-semibold text-gray-400">
-											কারেন্ট অ্যাফেয়ার্স
+										<span className="block text-[10px] md:text-xs font-semibold text-gray-400 relative z-10 leading-tight">
+											কারেন্ট অ্যাফেয়ার্স<br/>ও ট্রেন্ডিং ইস্যু
+										</span>
+									</button>
+
+									<button
+										onClick={() => {
+											setIsFeaturesMenuOpen(false);
+											setShowSolarSystem(true);
+										}}
+										className="bg-[#030712] p-4 rounded-2xl border border-white/10 hover:border-amber-500/50 hover:bg-white/5 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center group active:scale-95 relative overflow-hidden"
+										id="solar-sys-drawer-trigger"
+									>
+										<div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+										<span className="block text-2xl mb-1 group-hover:scale-110 transition-transform relative z-10 min-h-[30px] flex items-center justify-center">
+											🪐
+										</span>
+										<strong className="block text-lg text-amber-400 mb-1 font-bold relative z-10">
+											সৌরজগৎ
+										</strong>
+										<span className="block text-[10px] md:text-xs font-semibold text-gray-400 relative z-10 leading-tight">
+											মহাকাশ ও গ্রহরাজ্য<br/>উপগ্রহ গাইড বুক
 										</span>
 									</button>
 
@@ -868,44 +900,57 @@ export default function App() {
 						</p>
 
 						{/* Stats and World Records Group */}
-						<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
-							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
-								<span className="block text-2xl mb-1">🌍</span>
-								<strong className="block text-lg text-blue-500 mb-1 font-black">১৯৬ টি</strong>
-								<span className="block text-[10px] md:text-xs font-semibold text-gray-400">মোট দেশ</span>
+						<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 mb-4">
+							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center cursor-default hover:bg-blue-500/10 hover:border-blue-500/30 group relative overflow-hidden">
+								<div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+								<span className="block text-2xl mb-1 group-hover:scale-110 transition-transform relative z-10">🌍</span>
+								<strong className="block text-lg text-blue-500 mb-1 font-black relative z-10">১৯৬ টি</strong>
+								<span className="block text-[10px] md:text-xs font-semibold text-gray-400 relative z-10">মোট দেশ</span>
 							</div>
 
-							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center">
-								<span className="block text-2xl mb-1">👥</span>
-								<strong className="block text-lg text-indigo-500 mb-1 font-black cursor-help" title="অফলাইন ডাটা অনুযায়ী">৮.১ বিলিয়ন+</strong>
-								<span className="block text-[10px] md:text-xs font-semibold text-gray-400">বিশ্বের জনসংখ্যা</span>
+							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center cursor-default hover:bg-indigo-500/10 hover:border-indigo-500/30 group relative overflow-hidden">
+								<div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+								<span className="block text-2xl mb-1 group-hover:scale-110 transition-transform relative z-10">👥</span>
+								<strong className="block text-lg text-indigo-500 mb-1 font-black cursor-help relative z-10" title="অফলাইন ডাটা অনুযায়ী">৮.১ বিলিয়ন+</strong>
+								<span className="block text-[10px] md:text-xs font-semibold text-gray-400 relative z-10">বিশ্বের জনসংখ্যা</span>
 							</div>
 							
-							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:bg-white/5 active:scale-95" onClick={() => setShowLanguageExplorer(true)}>
-								<span className="block text-2xl mb-1 hover:scale-110 transition-transform">🗣️</span>
-								<strong className="block text-lg text-blue-500 mb-1 font-black cursor-help" title="অফলাইন ডাটা অনুযায়ী">৭১০০+</strong>
-								<span className="block text-[10px] md:text-xs font-semibold text-gray-400">জীবিত ভাষা</span>
+							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:bg-cyan-500/10 hover:border-cyan-500/30 active:scale-95 group relative overflow-hidden" onClick={() => setShowLanguageExplorer(true)}>
+								<div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+								<span className="block text-2xl mb-1 group-hover:scale-110 transition-transform relative z-10">🗣️</span>
+								<strong className="block text-lg text-cyan-400 mb-1 font-black cursor-help relative z-10" title="অফলাইন ডাটা অনুযায়ী">৭১০০+</strong>
+								<span className="block text-[10px] md:text-xs font-semibold text-gray-400 relative z-10">জীবিত ভাষা</span>
 							</div>
 
-							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:bg-white/5 active:scale-95" onClick={() => setShowCurrency(true)}>
-								<span className="block text-2xl mb-1 hover:scale-110 transition-transform">💱</span>
-								<strong className="block text-lg text-emerald-400 mb-1 font-black">লাইভ রেট</strong>
-								<span className="block text-[10px] md:text-xs font-semibold text-gray-400">কারেন্সি কনভার্টার</span>
+							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:bg-emerald-500/10 hover:border-emerald-500/30 active:scale-95 group relative overflow-hidden" onClick={() => setShowCurrency(true)}>
+								<div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+								<span className="block text-2xl mb-1 group-hover:scale-110 transition-transform relative z-10 w-auto h-auto min-h-[30px] flex items-center justify-center">💱</span>
+								<strong className="block text-lg text-emerald-400 mb-1 font-black relative z-10">লাইভ রেট</strong>
+								<span className="block text-[10px] md:text-xs font-semibold text-gray-400 relative z-10">কারেন্সি কনভার্টার</span>
 							</div>
 
-							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:bg-white/5 active:scale-95" onClick={() => setIsExamMode(true)}>
-								<span className="block text-2xl mb-1 hover:scale-110 transition-transform">📝</span>
-								<strong className="block text-lg text-rose-400 mb-1 font-black">প্রস্তুতি নিন</strong>
-								<span className="block text-[10px] md:text-xs font-semibold text-gray-400">MCQ কুইজ</span>
+							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:bg-rose-500/10 hover:border-rose-500/30 active:scale-95 group relative overflow-hidden" onClick={() => setIsExamMode(true)}>
+								<div className="absolute inset-0 bg-gradient-to-r from-rose-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+								<span className="block text-2xl mb-1 group-hover:scale-110 transition-transform relative z-10 w-auto h-auto min-h-[30px] flex items-center justify-center">📝</span>
+								<strong className="block text-lg text-rose-400 mb-1 font-black relative z-10">প্রস্তুতি নিন</strong>
+								<span className="block text-[10px] md:text-xs font-semibold text-gray-400 relative z-10">MCQ কুইজ</span>
 							</div>
 
-							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-colors duration-300 shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:bg-white/5 active:scale-95" onClick={() => setShowCurrentAffairs(true)}>
-								<span className="block text-2xl mb-1 hover:scale-110 transition-transform">📰</span>
-								<strong className="block text-lg text-purple-400 mb-1 font-black">AI গাইড</strong>
-								<span className="block text-[10px] md:text-xs font-semibold text-gray-400">কারেন্ট অ্যাফেয়ার্স</span>
+							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:bg-purple-500/10 hover:border-purple-500/30 active:scale-95 group relative overflow-hidden" onClick={() => setShowCurrentAffairs(true)}>
+								<div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+								<span className="block text-2xl mb-1 group-hover:scale-110 transition-transform relative z-10 w-auto h-auto min-h-[30px] flex items-center justify-center">📰</span>
+								<strong className="block text-lg text-purple-400 mb-1 font-black relative z-10">AI গাইড</strong>
+								<span className="block text-[10px] md:text-xs font-semibold text-gray-400 relative z-10 leading-tight">কারেন্ট অ্যাফেয়ার্স<br/>ও ট্রেন্ডিং ইস্যু</span>
 							</div>
 
-							<div className="col-span-2 sm:col-span-3 lg:col-span-6 rounded-2xl overflow-hidden border border-white/10">
+							<div className="bg-[#030712] p-4 rounded-2xl border border-white/10 transition-all duration-300 shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:bg-amber-500/10 hover:border-amber-500/30 active:scale-95 group relative overflow-hidden" onClick={() => setShowSolarSystem(true)} id="solar-sys-home-trigger">
+								<div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+								<span className="block text-2xl mb-1 group-hover:scale-110 transition-transform relative z-10 w-auto h-auto min-h-[30px] flex items-center justify-center">🪐</span>
+								<strong className="block text-lg text-amber-400 mb-1 font-black relative z-10">সৌরজগৎ</strong>
+								<span className="block text-[10px] md:text-xs font-semibold text-gray-400 relative z-10 leading-tight border-b border-transparent group-hover:border-amber-500/20">কসমিক বিজ্ঞান<br/>ও কৃত্রিম উপগ্রহ</span>
+							</div>
+
+							<div className="col-span-2 sm:col-span-3 lg:col-span-7 rounded-2xl overflow-hidden border border-white/10">
 								<WorldRecords />
 							</div>
 						</div>
@@ -1262,6 +1307,12 @@ export default function App() {
 			<CurrentAffairsGuide 
 				isOpen={showCurrentAffairs} 
 				onClose={() => setShowCurrentAffairs(false)} 
+			/>
+
+			{/* Solar System Explorer */}
+			<SolarSystemExplorer 
+				isOpen={showSolarSystem} 
+				onClose={() => setShowSolarSystem(false)} 
 			/>
 
 			{/* Persistent Chatbot */}
